@@ -1,0 +1,7 @@
+{
+  "name": "VacParent",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
