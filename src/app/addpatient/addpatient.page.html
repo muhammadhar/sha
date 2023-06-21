@@ -1,0 +1,87 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Add child</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <form (ngSubmit)="onSubmit()" #childForm="ngForm">
+    <ion-item>
+      <ion-label position="floating">Name</ion-label>
+      <ion-input
+        type="text"
+        name="childName"
+        [(ngModel)]="child.childName"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Father's Name</ion-label>
+      <ion-input
+        type="text"
+        name="fatherName"
+        [(ngModel)]="child.fatherName"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Mother's Name</ion-label>
+      <ion-input
+        type="text"
+        name="motherName"
+        [(ngModel)]="child.motherName"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Date of Birth</ion-label>
+      <ion-input
+        type="date"
+        name="dateOfBirth"
+        [(ngModel)]="child.dateOfBirth"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Email</ion-label>
+      <ion-input
+        type="email"
+        name="email"
+        [(ngModel)]="child.email"
+        required
+        email
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">WhatsApp Number</ion-label>
+      <ion-input
+        type="number"
+        name="whatsappNumber"
+        [(ngModel)]="child.whatsappNumber"
+        required
+      ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Select School</ion-label>
+      <ion-select name="selectSchool" [(ngModel)]="child.selectedSchool">
+        <ion-select-option *ngFor="let option of selectOptions" [value]="option">
+          {{ option }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-button expand="full" type="submit" [disabled]="!childForm.valid">
+      Add child
+    </ion-button>
+  </form>
+</ion-content>

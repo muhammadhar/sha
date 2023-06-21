@@ -1,0 +1,68 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Add School</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <form (ngSubmit)="onSubmit()" #schoolForm="ngForm">
+    <ion-item>
+      <ion-label position="floating">Name</ion-label>
+      <ion-input
+        type="text"
+        name="name"
+        [(ngModel)]="school.name"
+        required
+      ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Branch Name</ion-label>
+      <ion-input
+        type="text"
+        name="brandName"
+        [(ngModel)]="school.branchName"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Landline Number</ion-label>
+      <ion-input
+        type="number"
+        name="landlineNumber"
+        [(ngModel)]="school.landlineNumber"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Coordination Number</ion-label>
+      <ion-input
+        type="number"
+        name="coordinationNumber"
+        [(ngModel)]="school.coordinationNumber"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Principal Number</ion-label>
+      <ion-input
+        type="number"
+        name="principalNumber"
+        [(ngModel)]="school.principalNumber"
+        required
+      ></ion-input>
+    </ion-item>
+
+    <ion-button expand="full" type="submit" [disabled]="!schoolForm.valid">
+      Add School
+    </ion-button>
+  </form>
+</ion-content>
