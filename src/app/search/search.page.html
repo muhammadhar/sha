@@ -13,13 +13,14 @@
 <ion-content [fullscreen]="true">
   <ion-searchbar [(ngModel)]="searchQuery" (ionChange)="searchItems()"></ion-searchbar>
 
-  <ion-list>
-    <ion-item *ngFor="let school of searchResults" (click)="onSchoolClick(school)">
-      <ion-label>{{ school.name }}</ion-label>
+  <ion-list style="text-align: center;">
+    <ion-text *ngIf="searchResults.length > 0">List of Schools</ion-text>
+    <ion-item *ngFor="let school of searchResults; let i = index;" (click)="onSchoolClick(school)">
+      <div>{{i + 1}})&nbsp;&nbsp;&nbsp;&nbsp;{{ school.name }}</div>
     </ion-item>
   </ion-list>
   <ion-card *ngFor="let child of selectedChilds">
-    <ion-card-header>
+    <ion-card-header style="text-align: center;">
       <ion-card-title>Name : {{ child.childName }}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
@@ -33,7 +34,7 @@
       </ion-item>
     </ion-card-content>
   </ion-card>
-  <ion-button *ngIf="searchQuery !== ''" (click)="clearSearch()" expand="full" color="medium">
+  <ion-button *ngIf="showClearSearchButton" (click)="clearSearch()" expand="full" color="medium">
     Clear Search
   </ion-button>
 </ion-content>

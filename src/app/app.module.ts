@@ -14,6 +14,7 @@ import {
   FileTransfer,
   FileTransferObject,
 } from '@awesome-cordova-plugins/file-transfer/ngx';
+
 @NgModule({
   declarations: [AppComponent],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule],

@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  FileTransfer,
-  FileTransferObject,
-} from '@awesome-cordova-plugins/file-transfer/ngx';
+// import { Platform } from '@ionic/angular';
+import { SocialSharing } from '@awesome-cordova-plugins/social-sharing';
+// import {
+//   FileTransfer,
+//   FileTransferObject,
+// } from '@awesome-cordova-plugins/file-transfer/ngx';
 import { File } from '@awesome-cordova-plugins/file/ngx';
-import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
-import { FilePath } from '@awesome-cordova-plugins/file-path/ngx';
-import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
+// import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
+// import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+// import { FilePath } from '@awesome-cordova-plugins/file-path/ngx';
+// import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
+// import * as XLSX from 'xlsx';
+// import { saveAs } from 'file-saver';
 
 interface Ischool {
   name: string;
@@ -34,13 +36,10 @@ export class SearchPage implements OnInit {
   searchResults: Ischool[] = [];
   selectedChilds: IChild[] = [];
   childArray: any[] = [];
+  showClearSearchButton: boolean = false;
 
   constructor(
-    private file: File,
-    private androidPermissions: AndroidPermissions,
-    private fileTransfer: FileTransfer,
-    private filePath: FilePath,
-    private fileOpener: FileOpener
+    private file: File // private androidPermissions: AndroidPermissions, // private fileTransfer: FileTransfer, // private filePath: FilePath, // private fileOpener: FileOpener, // private platform: Platform
   ) {}
   searchItems() {
     this.searchResults = this.schools.filter((school) =>
@@ -51,11 +50,14 @@ export class SearchPage implements OnInit {
         name: 'no school found for the given search text.',
       });
     }
+
+    this.showClearSearchButton = this.searchResults.length > 0;
   }
 
   clearSearch() {
-    this.searchQuery = '';
     this.selectedChilds = [];
+    this.searchResults = [];
+    this.showClearSearchButton = false;
   }
   ngOnInit() {
     //@ts-ignore
@@ -72,35 +74,13 @@ export class SearchPage implements OnInit {
       (child: IChild) => child.selectedSchool === school.name
     );
     this.searchResults = [];
+    // After populating searchResults array
+    this.showClearSearchButton = this.selectedChilds.length > 0;
   }
 
   onDownload(child: IChild) {
     this.createAndWriteCSV(child);
   }
-
-  //   let ws = XLSX.utils.json_to_sheet([child]);
-  //   let wb = {Sheets: {'data': ws}, SheetNames : ['data']};
-  //   let buffer = XLSX.write(wb, {bookType : 'xlsx', type: 'array'});
-  //   this.saveFileToPhone(buffer, child);
-  // }
-
-  // saveFileToPhone(buffer: any, child: any) {
-  //   const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-  //   const fileExtension = '.xlsx';
-  //   const fileName = child.childName + Date.now().toString() + fileExtension;
-  //   const data: Blob = new Blob([buffer], { type: fileType });
-
-  //   console.log('File Path:', this.file.externalRootDirectory);
-  //   console.log('File Name:', fileName);
-  //   console.log('File Data:', data);
-
-  //   // this.file.writeFile(this.file.externalRootDirectory, fileName, data, { replace: true })
-  //   //   .then(() => {
-  //   //     console.log('File saved successfully');
-  //   //   })
-  //   //   .catch((error) => {
-  //   //     console.error('Error saving file:', error);
-  //   //   });
 
   convertObjectToCSV(object: IChild): string {
     const keys = Object.keys(object);
@@ -113,34 +93,28 @@ export class SearchPage implements OnInit {
   }
 
   createAndWriteCSV(child: IChild) {
-    const fileName = child.childName + 'data.csv' + Date.now().toString();
-
+    const fileName = child.childName + 'data.csv';
     const csvString = this.convertObjectToCSV(child);
 
-    const dataDirectory = this.file.externalDataDirectory;
+    const dataDirectory = this.file.dataDirectory;
 
     this.file
       .writeFile(dataDirectory, fileName, csvString, { replace: true })
       .then(() => {
-        alert(
-          'child ' +
-            child.childName +
-            ' csv file downloaded successfully to: ' +
-            dataDirectory +
-            fileName
-        );
+        const filePath = dataDirectory + fileName;
+        const message =
+          'Child ' + child.childName + ' CSV file downloaded successfully.';
 
-        // Open the CSV file
-        this.fileOpener
-          .open(dataDirectory + fileName, 'text/csv')
+        // Share the CSV file using SocialSharing
+        SocialSharing.share(undefined, undefined, filePath, message)
           .then(() => {
-            console.log('CSV file opened successfully.');
+            console.log('CSV file shared successfully.');
           })
-          .catch((error) => {
-            console.error('Error opening CSV file:', error);
+          .catch((error: any) => {
+            console.error('Error sharing CSV file:', error);
           });
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error('Error creating and writing CSV file:', error);
       });
   }
