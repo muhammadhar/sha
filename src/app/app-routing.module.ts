@@ -16,11 +16,11 @@ const routes: Routes = [
     loadChildren: () => import('./search/search.module').then( m => m.SearchPageModule)
   },
   {
-    path: 'addpatient',
-    loadChildren: () => import('./addpatient/addpatient.module').then( m => m.AddpatientPageModule)
+    path: 'add_child',
+    loadChildren: () => import('./addchild/addchild.module').then( m => m.AddChildPageModule)
   },
   {
-    path: 'addschool',
+    path: 'add_school',
     loadChildren: () => import('./addschool/addschool.module').then( m => m.AddschoolPageModule)
   },
   {
