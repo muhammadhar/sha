@@ -1,69 +1,37 @@
-ion-content{
-  //--background:  var(--ion-color-light);
-  //--background:  linear-gradient(120deg, #eefcfb, #e3e7e7 );
-  --background:linear-gradient(120deg, rgb(229, 227, 188), rgb(30, 156, 72));
+#login-content {
+  --background: linear-gradient(to bottom right, #b89d52d3, #05888d);
 }
 
-
-ion-item{
-  border-radius: 40px;
-  margin-bottom: 10%;
+#login-form {
+  background-color: #fff;
+  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  padding: 20px;
+  border-radius: 20px;
+  width: 100%;
 }
 
-
-.item.item-trns {
-border-color: rgba(0, 0, 0, 0);
-background-color: rgba(0, 0, 0, 0);
-color: white; 
+ion-title {
+  font-weight: bold;
 }
 
-h2{
-  color:#0039a2;
+ion-grid {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-form{
-  // padding-top: 10vh;
-  //background:  var(--ion-color-primary-custom2);
-  background:  linear-gradient(120deg, rgb(195, 11, 241), rgb(10, 216, 206));
-  margin-top: -5vh;
-  margin-left: 10%;
-  margin-right: 10%;
-  border-radius: 27px;
-  box-shadow: 1px 1px 10px 1px darkgrey;
-  min-height: 55%;
-  padding-top: 18%;
+ion-input {
+  border-radius: 20px;
 }
 
-#signin{
-padding-top: 10vh;
-padding-bottom: 10vh;
-color:var(--ion-color-primary-custom);
-box-shadow: 1px 1px 10px 1px darkgrey;
-font-size: 30px;
-text-align: center;
-background:  linear-gradient(120deg, var(--ion-color-primary-custom2), var(--ion-color-primary-custom3));
-border-radius: 0px 0px 50px 50px;
+ion-col {
+  // max-width: 800px;
+  width: 100%;
 }
 
-ion-button {  
-  --background: linear-gradient(90deg, var(--ion-color-primary-custombutton1), var(--ion-color-primary-custombutton2));
-}
-
-ion-label{
-  color:var(--ion-color-primary-custom);
-  margin-top: 10%;
-}
-
-p{
-  color:rgb(182, 60, 22);
-  margin-top: 20%;
-  font-size: 15pt;
-  
-}
-a{
-  text-decoration: none
-}
-
-ion-text{
-  margin-top: 20%;
+.custom-btns{
+  display: flex;
+  text-transform: lowercase;
 }

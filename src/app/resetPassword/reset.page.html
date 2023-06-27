@@ -1,0 +1,38 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/members/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Reset Password</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="reset-page">
+    <form [formGroup]="resetForm" (ngSubmit)="onSubmit()">
+      <ion-item>
+        <ion-label position="stacked">New Password</ion-label>
+        <ion-input type="password" formControlName="password"></ion-input>
+      </ion-item>
+      
+      <div *ngIf="isControlInvalidAndTouched('password')" class="error-message">
+        <div *ngIf="resetForm.get('password')?.errors?.['required']" class="error-text">{{ passwordRequiredError }}</div>
+        <div *ngIf="resetForm.get('password')?.errors?.['minlength']" class="error-text">{{ passwordMinLengthError }}</div>
+      </div>
+      
+      <ion-item>
+        <ion-label position="stacked">Confirm Password</ion-label>
+        <ion-input type="password" formControlName="confirmPassword"></ion-input>
+      </ion-item>
+      
+      <div *ngIf="isControlInvalidAndTouched('confirmPassword')" class="error-message">
+        <div *ngIf="resetForm.get('confirmPassword')?.errors?.['required']" class="error-text">{{ confirmPasswordRequiredError }}</div>
+      </div>
+      <span class="error-message" *ngIf="notPassMatch.length>0"> passwords does not match</span>
+      <ion-button expand="block" type="submit" [disabled]="resetForm.invalid">Reset Password</ion-button>
+    </form>
+  </div>
+</ion-content>

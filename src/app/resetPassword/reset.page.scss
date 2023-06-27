@@ -1,0 +1,41 @@
+
+.reset-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 20px;
+  
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+  
+    form {
+      display: flex;
+      flex-direction: column;
+  
+      label {
+        margin-bottom: 10px;
+      }
+  
+      input {
+        padding: 5px;
+        margin-bottom: 10px;
+        width: 200px;
+      }
+  
+      button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .error-message {
+    font-size: 10px;
+    color: red;
+  }
+

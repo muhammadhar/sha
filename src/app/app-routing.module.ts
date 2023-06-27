@@ -10,7 +10,7 @@ const routes: Routes = [
   {
     path: 'login',
     loadChildren: () =>
-      import("./login/login.module").then((m) => m.LoginPageModule),
+      import('./login/login.module').then((m) => m.LoginPageModule),
   },
   {
     path: 'members/dashboard',
@@ -31,6 +31,16 @@ const routes: Routes = [
     path: 'add_school',
     loadChildren: () =>
       import('./addschool/addschool.module').then((m) => m.AddschoolPageModule),
+  },
+  {
+    path: 'forgot_password',
+    loadChildren: () =>
+      import('./forgetPassword/forget.module').then((m) => m.ForgetPageModule),
+  },
+  {
+    path: 'reset_password',
+    loadChildren: () =>
+      import('./resetPassword/reset.module').then((m) => m.ResetPageModule),
   },
 ];
 

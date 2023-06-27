@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Forget Password</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <div class="forget-page">
+    <form [formGroup]="forgetForm" (ngSubmit)="onSubmit()">
+      <ion-item>
+        <ion-label position="stacked">Email:</ion-label>
+        <ion-input type="email" formControlName="email" placeholder="Enter your email"></ion-input>
+      </ion-item>
+
+      <div *ngIf="isEmailInvalidAndRequired()" class="error-message">
+        Email is required.
+      </div>
+
+      <ion-button expand="block" type="submit" [disabled]="isEmailInvalidAndRequired()">Forgot Password</ion-button>
+    </form>
+  </div>
+</ion-content>
