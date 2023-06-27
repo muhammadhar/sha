@@ -37,6 +37,7 @@ export class SearchPage implements OnInit {
   selectedChilds: IChild[] = [];
   childArray: any[] = [];
   showClearSearchButton: boolean = false;
+  showNoStudentMsg = false;
 
   constructor(
     private file: File // private androidPermissions: AndroidPermissions, // private fileTransfer: FileTransfer, // private filePath: FilePath, // private fileOpener: FileOpener, // private platform: Platform
@@ -58,10 +59,18 @@ export class SearchPage implements OnInit {
     this.selectedChilds = [];
     this.searchResults = [];
     this.showClearSearchButton = false;
+    this.showNoStudentMsg = false;
   }
   ngOnInit() {
     //@ts-ignore
     const storedSchools = JSON.parse(localStorage.getItem('schools'));
+    if (storedSchools.length === 0) {
+      this.searchResults.push({
+        name: 'no school found for the given search text.',
+      });
+    } else {
+      this.searchResults = storedSchools;
+    }
     this.schools = storedSchools || [
       { name: 'no school data available for this student' },
     ];
@@ -75,7 +84,12 @@ export class SearchPage implements OnInit {
     );
     this.searchResults = [];
     // After populating searchResults array
-    this.showClearSearchButton = this.selectedChilds.length > 0;
+    this.showClearSearchButton = true;
+    if (this.selectedChilds.length === 0) {
+      this.showNoStudentMsg = true;
+    } else {
+      this.showNoStudentMsg = false;
+    }
   }
 
   onDownload(child: IChild) {

@@ -19,6 +19,7 @@
       <div>{{i + 1}})&nbsp;&nbsp;&nbsp;&nbsp;{{ school.name }}</div>
     </ion-item>
   </ion-list>
+  <ion-text [hidden]="!showNoStudentMsg">&nbsp;&nbsp;&nbsp;no students registered to this school.</ion-text>
   <ion-card *ngFor="let child of selectedChilds">
     <ion-card-header style="text-align: center;">
       <ion-card-title>Name : {{ child.childName }}</ion-card-title>
@@ -30,7 +31,7 @@
       <ion-item>Email : {{child.email}}</ion-item>
       <ion-item>WhatsApp# :{{child.whatsappNumber}}</ion-item>
       <ion-item lines="none">
-        <ion-button size="small" (click)="onDownload(child)" slot="end">download</ion-button>
+        <ion-button size="small" (click)="onDownload(child)" slot="end">share</ion-button>
       </ion-item>
     </ion-card-content>
   </ion-card>
