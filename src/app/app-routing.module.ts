@@ -35,12 +35,12 @@ const routes: Routes = [
   {
     path: 'forgot_password',
     loadChildren: () =>
-      import('./forgetPassword/forget.module').then((m) => m.ForgetPageModule),
+      import('./forget/forget.module').then((m) => m.ForgetPageModule),
   },
   {
     path: 'reset_password',
     loadChildren: () =>
-      import('./resetPassword/reset.module').then((m) => m.ResetPageModule),
+      import('./reset/reset.module').then((m) => m.ResetPageModule),
   },
 ];
 

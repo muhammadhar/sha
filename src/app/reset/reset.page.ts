@@ -1,4 +1,4 @@
-import { LocalStorageService } from './../services/localstorage.service';
+import { LocalStorageService } from '../services/localstorage.service';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LocalSessionService } from '../services/LocalSession.service';

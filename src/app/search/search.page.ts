@@ -63,10 +63,10 @@ export class SearchPage implements OnInit {
   }
   ngOnInit() {
     //@ts-ignore
-    const storedSchools = JSON.parse(localStorage.getItem('schools'));
+    const storedSchools = JSON.parse(localStorage.getItem('schools')) || [];
     if (storedSchools.length === 0) {
       this.searchResults.push({
-        name: 'no school found for the given search text.',
+        name: 'no schools available. kindly add one.',
       });
     } else {
       this.searchResults = storedSchools;
