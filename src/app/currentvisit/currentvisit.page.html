@@ -1,0 +1,183 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Current visit</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-card>
+    <ion-card-header style="text-align: center;">
+      <ion-card-title>{{ this.childName }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <form (ngSubmit)="onSubmit()" #form="ngForm">
+        <div class="table-container">
+          <ion-card>
+            <ion-item>
+              <ion-label position="stacked">Date:</ion-label>
+              <ion-input type="date" [(ngModel)]="date" name="date" id="date" [min]="getCurrentDate()"></ion-input>
+            </ion-item>
+          </ion-card>
+        
+          <ion-card>
+            <ion-item>
+              <ion-label position="floating">Weight:</ion-label>
+              <ion-input type="text" [(ngModel)]="weight" name="weight" id="weight"></ion-input>
+            </ion-item>
+          </ion-card>
+        
+          <ion-card>
+            <ion-item>
+              <ion-label position="floating">Height:</ion-label>
+              <ion-input type="text" [(ngModel)]="height" name="height" id="height"></ion-input>
+            </ion-item>
+          </ion-card>
+        
+          <ion-card>
+            <ion-item>
+              <ion-label position="floating">BMI:</ion-label>
+              <ion-input type="text" [(ngModel)]="bmi" name="bmi" id="bmi"></ion-input>
+            </ion-item>
+          </ion-card>
+        
+          <ion-card>
+            <ion-item>
+              <ion-label position="floating">Growth Velocity:</ion-label>
+              <ion-input type="text" [(ngModel)]="growthVelocity" name="growthVelocity" id="growthVelocity"></ion-input>
+            </ion-item>
+          </ion-card>
+        
+          <ion-card>
+            <ion-item>
+              <ion-label position="floating">MUAC:</ion-label>
+              <ion-input type="text" [(ngModel)]="muac" name="muac" id="muac"></ion-input>
+            </ion-item>
+          </ion-card>
+        </div>
+        
+
+
+          <div class="row-container">
+            <ion-card>
+              <ion-item>
+                <ion-label position="floating">Ear Wax</ion-label>
+                <ion-select [(ngModel)]="earWax" name="earWax">
+                  <ion-select-option value="clean">Clean</ion-select-option>
+                  <ion-select-option value="left clean">Left Clean</ion-select-option>
+                  <ion-select-option value="right clean">Right Clean</ion-select-option>
+                  <ion-select-option value="not clean">Not Clean</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-card>
+        
+            <ion-card>
+              <ion-item>
+                <ion-label position="floating">Vision</ion-label>
+                <ion-select [(ngModel)]="vision" name="vision">
+                  <ion-select-option value="1/6">1/6</ion-select-option>
+                  <ion-select-option value="2/6">2/6</ion-select-option>
+                  <ion-select-option value="3/6">3/6</ion-select-option>
+                  <ion-select-option value="4/6">4/6</ion-select-option>
+                  <ion-select-option value="5/6">5/6</ion-select-option>
+                  <ion-select-option value="6/6">6/6</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-card>
+        
+            <ion-card>
+              <ion-item>
+                <ion-label position="floating">Palmar Pallor</ion-label>
+                <ion-select [(ngModel)]="palmarPallor" name="palmarPallor">
+                  <ion-select-option value="present">Present</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-card>
+          </div>
+
+        
+              <ion-card >
+                <ion-card-header>
+                  DENTAL EXAMINATION
+                </ion-card-header>
+                    <ion-card-content class="custom-flex">
+                      <ion-item lines="none">
+                        <ion-label position="floating">Hygiene</ion-label>
+                        <ion-select [(ngModel)]="hygiene" name="extraction">
+                          <ion-select-option value="required">Required</ion-select-option>
+                          <ion-select-option value="not required">Not Required</ion-select-option>
+                        </ion-select>
+                      </ion-item>
+                      <ion-item lines="none">
+                        <ion-label position="floating">Carries</ion-label>
+                        <ion-select [(ngModel)]="carries" name="carries">
+                          <ion-select-option value="required">Required</ion-select-option>
+                          <ion-select-option value="not required">Not Required</ion-select-option>
+                        </ion-select>
+                      </ion-item>
+                      <ion-item lines="none">
+                        <ion-label position="floating">Scaling</ion-label>
+                        <ion-select [(ngModel)]="scaling" name="scaling">
+                          <ion-select-option value="required">Required</ion-select-option>
+                          <ion-select-option value="not required">Not Required</ion-select-option>
+                        </ion-select>
+                      </ion-item>
+                      <ion-item lines="none">
+                        <ion-label position="floating">Gaps</ion-label>
+                        <ion-select [(ngModel)]="gaps" name="braces">
+                          <ion-select-option value="required">Required</ion-select-option>
+                          <ion-select-option value="not required">Not Required</ion-select-option>
+                        </ion-select>
+                      </ion-item>
+                    </ion-card-content>
+                  
+              </ion-card>
+ 
+        
+
+        <ion-card>
+          <ion-item lines="full">
+              <div class="title">VACCINATION ASSESSMENT :</div>
+              <ion-item slot="end">
+                <span position="stacked" style="margin-right: 10px;">Select EPI</span>
+                <ion-select [(ngModel)]="epiStatus" name="epiStatus" required>
+                  <ion-select-option value="done">Done</ion-select-option>
+                  <ion-select-option value="partially-done">Partially Done</ion-select-option>
+                  <ion-select-option value="missed">Missed</ion-select-option>
+                </ion-select>
+              </ion-item>
+          </ion-item>
+        </ion-card>
+
+        <div class="table-container">
+          <ion-card>
+            <ion-item>
+              <ion-label position="floating">Typhoid</ion-label>
+              <ion-input type="text" [(ngModel)]="typhoid" name="typhoid"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Chickenpox</ion-label>
+              <ion-input type="text" [(ngModel)]="chickenpox" name="chickenpox"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Hepatitis A</ion-label>
+              <ion-input type="text" [(ngModel)]="hepatitisA" name="hepatitisA"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">MMR</ion-label>
+              <ion-input type="text" [(ngModel)]="mmr" name="mmr"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Meningitis</ion-label>
+              <ion-input type="text" [(ngModel)]="meningitis" name="meningitis"></ion-input>
+            </ion-item>
+            
+          </ion-card>
+        </div>
+
+        <div class="button-container">
+          <ion-button type="submit" [disabled]="!form.valid">Submit</ion-button>
+        </div>
+      </form>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

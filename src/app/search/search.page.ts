@@ -16,7 +16,8 @@ import { File } from '@awesome-cordova-plugins/file/ngx';
 interface Ischool {
   name: string;
 }
-interface IChild {
+export interface IChild {
+  id: string;
   childName: string;
   fatherName: string;
   motherName: string;
@@ -31,69 +32,64 @@ interface IChild {
   styleUrls: ['./search.page.scss'],
 })
 export class SearchPage implements OnInit {
-  schools: Ischool[] = [];
+  childs: IChild[] = [];
   searchQuery: string = '';
-  searchResults: Ischool[] = [];
+  searchResults: IChild[] = [];
   selectedChilds: IChild[] = [];
   childArray: any[] = [];
   showClearSearchButton: boolean = false;
   showNoStudentMsg = false;
+  noChildFound: boolean = false;
 
   constructor(
     private file: File // private androidPermissions: AndroidPermissions, // private fileTransfer: FileTransfer, // private filePath: FilePath, // private fileOpener: FileOpener, // private platform: Platform
   ) {}
   searchItems() {
-    this.searchResults = this.schools.filter((school) =>
-      school.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+    this.searchResults = this.childs.filter((child) =>
+      child.childName.toLowerCase().includes(this.searchQuery.toLowerCase())
     );
     if (this.searchResults.length === 0) {
-      this.searchResults.push({
-        name: 'no school found for the given search text.',
-      });
+      this.noChildFound = true;
+      this.showClearSearchButton = true;
     }
 
-    this.showClearSearchButton = this.searchResults.length > 0;
+    this.showClearSearchButton = true;
   }
 
   clearSearch() {
+    this.searchQuery = '';
     this.selectedChilds = [];
     this.searchResults = [];
     this.showClearSearchButton = false;
     this.showNoStudentMsg = false;
+    this.noChildFound = false;
   }
   ngOnInit() {
     //@ts-ignore
-    const storedSchools = JSON.parse(localStorage.getItem('schools')) || [];
-    if (storedSchools.length === 0) {
-      this.searchResults.push({
-        name: 'no schools available. kindly add one.',
-      });
-    } else {
-      this.searchResults = storedSchools;
-    }
-    this.schools = storedSchools || [
-      { name: 'no school data available for this student' },
-    ];
+    const storedChilds = JSON.parse(localStorage.getItem('childs')) || [];
+    this.childs = storedChilds;
   }
 
-  onSchoolClick(school: Ischool) {
+  onChildClick(child: IChild) {
     //@ts-ignore
     const storedChilds = JSON.parse(localStorage.getItem('childs')) || [];
     this.selectedChilds = storedChilds.filter(
-      (child: IChild) => child.selectedSchool === school.name
+      (ch: IChild) => ch.childName === child.childName
     );
     this.searchResults = [];
     // After populating searchResults array
     this.showClearSearchButton = true;
     if (this.selectedChilds.length === 0) {
       this.showNoStudentMsg = true;
+      this.noChildFound = true;
     } else {
       this.showNoStudentMsg = false;
+      this.noChildFound = false;
     }
   }
 
   onDownload(child: IChild) {
-    this.createAndWriteCSV(child);
+    // this.createAndWriteCSV(child);
   }
 
   convertObjectToCSV(object: IChild): string {
@@ -106,9 +102,9 @@ export class SearchPage implements OnInit {
     return `${header}\n${row}`;
   }
 
-  createAndWriteCSV(child: IChild) {
-    const fileName = child.childName + 'data.csv';
-    const csvString = this.convertObjectToCSV(child);
+  createAndWriteCSV(child: IChild[]) {
+    const fileName = Date.now().toString() + 'data.csv';
+    const csvString = this.convertArrayToCSV(child);
 
     const dataDirectory = this.file.dataDirectory;
 
@@ -116,8 +112,7 @@ export class SearchPage implements OnInit {
       .writeFile(dataDirectory, fileName, csvString, { replace: true })
       .then(() => {
         const filePath = dataDirectory + fileName;
-        const message =
-          'Child ' + child.childName + ' CSV file downloaded successfully.';
+        const message = 'Childs ' + ' CSV file downloaded successfully.';
 
         // Share the CSV file using SocialSharing
         SocialSharing.share(undefined, undefined, filePath, message)
@@ -131,5 +126,30 @@ export class SearchPage implements OnInit {
       .catch((error: any) => {
         console.error('Error creating and writing CSV file:', error);
       });
+  }
+
+  showNoChildMsg(): boolean {
+    return this.childs.length === 0 ? true : false;
+  }
+
+  BulkChildDownload(selectedChilds: IChild[]) {
+    this.createAndWriteCSV(selectedChilds);
+  }
+
+  convertArrayToCSV(objects: IChild[]): string {
+    if (objects.length === 0) {
+      return ''; // Return an empty string if the array is empty
+    }
+
+    const keys = Object.keys(objects[0]);
+    const header = keys.join(',');
+
+    const rows = objects.map((object) => {
+      //@ts-ignore
+      const values = keys.map((key) => object[key]);
+      return values.map((value) => `"${value}"`).join(', ');
+    });
+
+    return `${header}\n\n${rows.join('\n\n\n')}`;
   }
 }

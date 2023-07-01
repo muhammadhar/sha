@@ -42,6 +42,18 @@ const routes: Routes = [
     loadChildren: () =>
       import('./reset/reset.module').then((m) => m.ResetPageModule),
   },
+  {
+    path: 'current_visit/:childId',
+    loadChildren: () =>
+      import('./currentvisit/currentvisit.module').then(
+        (m) => m.CurrentvisitPageModule
+      ),
+  },
+  {
+    path: 'past_visits/:childId',
+    loadChildren: () =>
+      import('./pastvisit/pastvisit.module').then((m) => m.PastvisitPageModule),
+  },
 ];
 
 @NgModule({

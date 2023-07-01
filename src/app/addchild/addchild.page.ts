@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastService } from '../services/ToastService.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-addchild',
@@ -14,12 +15,14 @@ export class AddChildPage implements OnInit {
   onSubmit() {
     //@ts-ignore
     const tempArray = JSON.parse(localStorage.getItem('childs')) || [];
-    console.log(tempArray);
+    this.child.id = uuidv4();
+
     tempArray.push(this.child);
-    console.log(tempArray);
+
     localStorage.setItem('childs', JSON.stringify(tempArray));
-    console.log(this.child);
+
     this.child = {};
+
     this.toastService.create(
       'child added successfully',
       'success',
@@ -30,9 +33,7 @@ export class AddChildPage implements OnInit {
 
   ngOnInit() {
     //@ts-ignore
-    const schools = JSON.parse(localStorage.getItem('schools')) || [
-      { name: 'school data is not available' },
-    ];
+    const schools = JSON.parse(localStorage.getItem('schools')) || [];
     this.selectOptions = schools.map((school: any) => school.name);
   }
 }

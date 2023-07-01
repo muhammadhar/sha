@@ -1,0 +1,84 @@
+ion-card {
+    margin: 20px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ccc; /* Add border to the table */
+  }
+  
+  th,
+  td {
+    text-align: left;
+    border: 1px solid #ccc; /* Add border to table cells */
+  }
+  
+  th {
+    background-color: #f5f5f5;
+  }
+  
+  td {
+    padding: 5px; /* Remove horizontal padding from table cells */
+  }
+  
+  // ion-input {
+  //   width: 100%;
+  //   border: 1px solid #ccc; /* Add border to the input fields */
+  // }
+  
+  .content-section {
+    margin-left: 20px;
+  }
+  
+  .title {
+    font-weight: 400;
+    margin-bottom: 3px;
+  }
+  
+  .title-with-data {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .data {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .error-message {
+    color: red;
+  }
+  
+  .button-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .custom-flex {
+    display: flex;
+  }
+  .custom-flex > * {
+    width: 25%;
+  }
+  
+  .select-container {
+    display: flex;
+    // justify-content: center;
+  }
+  
+  .row-container {
+    display: flex;
+  }
+  
+  .row-container > * {
+    width: 33.3333%;
+  }
+  

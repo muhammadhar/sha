@@ -44,35 +44,35 @@ export class LoginPage implements OnInit {
   }
 
   async login() {
-    const mobileNumber = this.fg.value.MobileNumber;
-    const password = this.fg.value.Password;
-    // Perform login logic here
-    // You can use the mobileNumber and password variables to authenticate the user
-    const LoginData: ILogin = this._storage.getItem(mobileNumber);
-    if (LoginData !== null && LoginData.Password === password) {
-      const loading = await this.loadingController.create({
-        message: 'Logging in...',
-        spinner: 'crescent',
-        translucent: true,
-      });
-      this._session.saveSession('currentSession', LoginData);
-      await loading.present();
-      loading.dismiss();
+    // const mobileNumber = this.fg.value.MobileNumber;
+    // const password = this.fg.value.Password;
+    // // Perform login logic here
+    // // You can use the mobileNumber and password variables to authenticate the user
+    // const LoginData: ILogin = this._storage.getItem(mobileNumber);
+    // if (LoginData !== null && LoginData.Password === password) {
+    const loading = await this.loadingController.create({
+      message: 'Logging in...',
+      spinner: 'crescent',
+      translucent: true,
+    });
+    //   this._session.saveSession('currentSession', LoginData);
+    //   await loading.present();
+    //   loading.dismiss();
 
-      // Redirect to dashboard upon successful login
-      this.router.navigate(['/members/dashboard']);
-    } else {
-      this._toast.create(
-        'please enter correct Mobile# and Password, try again.',
-        'danger',
-        false,
-        3000
-      );
-      this.fg.patchValue({
-        MobileNumber: '92',
-        Password: null,
-      });
-    }
+    //   // Redirect to dashboard upon successful login
+    this.router.navigate(['/members/dashboard']);
+    // } else {
+    // this._toast.create(
+    //   'please enter correct Mobile# and Password, try again.',
+    //   'danger',
+    //   false,
+    //   1000
+    // );
+    // this.fg.patchValue({
+    //   MobileNumber: '92',
+    //   Password: null,
+    // });
+    // }
 
     // Example: Simulating login with a loading indicator
   }

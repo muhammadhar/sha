@@ -11,33 +11,39 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <!-- <ion-header *ngIf="selectedChilds.length > 0">
-    <ion-toolbar>&nbsp;&nbsp;<ion-button size="small"> share</ion-button></ion-toolbar>
-  </ion-header> -->
+   <ion-header *ngIf="searchResults.length > 0">
+    <ion-toolbar>&nbsp;&nbsp;<ion-button size="small" (click)="BulkChildDownload(searchResults)">share</ion-button></ion-toolbar>
+  </ion-header>
   <ion-searchbar [(ngModel)]="searchQuery" (ionChange)="searchItems()"></ion-searchbar>
 
-  <ion-list style="text-align: center;">
-    <ion-text *ngIf="searchResults.length > 0">List of Schools</ion-text>
-    <ion-item *ngFor="let school of searchResults; let i = index;" (click)="onSchoolClick(school)">
-      <div>{{i + 1}})&nbsp;&nbsp;&nbsp;&nbsp;{{ school.name }}</div>
+  <ion-list style="text-align: center;" *ngIf="searchQuery !== ''">
+    <ion-text *ngIf="searchResults.length > 0">List of Children</ion-text>
+    <ion-item *ngFor="let child of searchResults; let i = index;" (click)="onChildClick(child)">
+      <div>{{i + 1}})&nbsp;&nbsp;&nbsp;&nbsp;{{ child.childName }}</div>
     </ion-item>
+    <ion-text *ngIf="noChildFound">
+      No student found. Kindly add one.
+    </ion-text>
   </ion-list>
-  <ion-text [hidden]="!showNoStudentMsg">&nbsp;&nbsp;&nbsp;no students registered to this school.</ion-text>
-  <ion-card *ngFor="let child of selectedChilds" >
+
+  <ion-card *ngFor="let child of selectedChilds">
     <ion-card-header style="text-align: center;">
-      <ion-card-title>Name : {{ child.childName }}</ion-card-title>
+      <ion-card-title>{{ child.childName }}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <ion-item>Father : {{child.fatherName}}</ion-item>
-      <ion-item>Mother: {{child.motherName}}</ion-item>
-      <ion-item>Date of Birth : {{child.dateOfBirth | date: 'short'}}</ion-item>
-      <ion-item>Email : {{child.email}}</ion-item>
-      <ion-item>WhatsApp# :{{child.whatsappNumber}}</ion-item>
+      <ion-item>Father: {{ child.fatherName }}</ion-item>
+      <ion-item>Mother: {{ child.motherName }}</ion-item>
+      <ion-item>Date of Birth: {{ child.dateOfBirth | date: 'short' }}</ion-item>
+      <ion-item>Email: {{ child.email }}</ion-item>
+      <ion-item>WhatsApp#: {{ child.whatsappNumber }}</ion-item>
       <ion-item lines="none">
-        <ion-button size="small" (click)="onDownload(child)" slot="end">share</ion-button>
+        
+        <ion-button size="small" [routerLink]="'/past_visits/' + child.id" slot="end">past visits</ion-button>
+<ion-button size="small" [routerLink]="'/current_visit/' + child.id" slot="end">current visit</ion-button>
       </ion-item>
     </ion-card-content>
   </ion-card>
+
   <ion-button *ngIf="showClearSearchButton" (click)="clearSearch()" expand="full" color="medium">
     Clear Search
   </ion-button>
