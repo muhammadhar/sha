@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastService } from '../services/ToastService.service';
 import { v4 as uuidv4 } from 'uuid';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-addchild',
@@ -8,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
   styleUrls: ['./addchild.page.scss'],
 })
 export class AddChildPage implements OnInit {
-  constructor(private toastService: ToastService) {}
+  constructor(private toastService: ToastService, private router: Router) {}
   child: any = {};
   selectOptions: string[] = [];
 
@@ -21,7 +22,7 @@ export class AddChildPage implements OnInit {
 
     localStorage.setItem('childs', JSON.stringify(tempArray));
 
-    this.child = {};
+
 
     this.toastService.create(
       'child added successfully',
@@ -29,6 +30,8 @@ export class AddChildPage implements OnInit {
       false,
       1000
     );
+    this.router.navigate(['current_visit/'+ this.child.id]);
+    this.child = {};
   }
 
   ngOnInit() {

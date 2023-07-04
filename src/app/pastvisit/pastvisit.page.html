@@ -5,11 +5,11 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-card>
+  <ion-card *ngIf="childVisit.length > 0; else elseData">
     <ion-card-header style="text-align: center;">
-      <ion-card-title>{{ 'rizwan muhammad' }}</ion-card-title>
+      <ion-card-title>{{ child.childName }}</ion-card-title>
     </ion-card-header>
-    <ion-card-content>
+
       <div class="table-container">
         <table>
           <thead>
@@ -23,15 +23,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>2023-01-01</td>
-              <td>15.5 kg</td>
-              <td>100 cm</td>
-              <td>15.6</td>
-              <td>2.1 cm/month</td>
-              <td>20 cm</td>
+            <tr *ngFor="let cvisit of childVisit">
+              <td>{{cvisit.date}}</td>
+              <td>{{cvisit.weight}}</td>
+              <td>{{cvisit.height}}</td>
+              <td>{{cvisit.bmi}}</td>
+              <td>{{cvisit.growthVelocity}}</td>
+              <td>{{cvisit.muac}}</td>
             </tr>
-            <!-- Add more rows with dummy data here -->
+            
           </tbody>
         </table>
       </div>
@@ -47,11 +47,11 @@
           </thead>
           <tbody>
             <tr>
-              <td>both clean</td>
-              <td>6/6</td>
-              <td>Severe pallor</td>
+              <td>{{child.earWax}}</td>
+              <td>{{child.vision}}</td>
+              <td>{{child.palmarPallor}}</td>
             </tr>
-            <!-- Add more rows with dummy data here -->
+            
           </tbody>
         </table>
       </div>
@@ -64,31 +64,22 @@
         <table>
           <thead>
             <tr>
+              <th>Hygiene</th>
               <th>Carries</th>
-              <th>Extraction</th>
               <th>Scaling</th>
-              <th>Braces</th>
+              <th>Gaps</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>A/P</td>
-              <td>R/NR</td>
-              <td>R/NR</td>
-              <td>R/NR</td>
+              <td>{{child.hygiene}}</td>
+              <td>{{child.carries}}</td>
+              <td>{{child.scaling}}</td>
+              <td>{{child.gaps}}</td>
             </tr>
-            <!-- Add more rows with dummy data here -->
+            
           </tbody>
         </table>
-      </div>
-
-      <div class="content-section">
-        <div class="title-with-data">
-          <div class="title">VACCINATION ASSESSMENT :</div>
-          <div class="data">
-            <b>(EPI:  DONE/Partially Done/ Missed )</b>
-          </div>
-        </div>
       </div>
 
       <div class="table-container">
@@ -101,37 +92,38 @@
           </thead>
           <tbody>
             <tr>
-              <td>Chickenpox</td>
-              <td>Given/Pending</td>
-            </tr>
-            <tr>
-              <td>Hepatitis A</td>
-              <td>Given/Pending</td>
-            </tr>
-            <tr>
-              <td>MMR</td>
-              <td>Given/Pending</td>
-            </tr>
-            <tr>
-              <td>Meningitis</td>
-              <td>Given/Pending</td>
+              <td>EPI</td>
+              <td>{{child.epiStatus}}</td>
             </tr>
             <tr>
               <td>Typhoid</td>
-              <td>Given/Pending</td>
+              <td>{{child.typhoid}}</td>
             </tr>
             <tr>
-              <td>DTaP</td>
-              <td>Given/Pending</td>
+              <td>Chickenpox</td>
+              <td>{{child.chickenpox}}</td>
             </tr>
             <tr>
-              <td>PCV/PPSV</td>
-              <td>Given/Pending</td>
+              <td>Hepatitis A</td>
+              <td>{{child.hepatitisA}}</td>
             </tr>
-            <!-- Add more rows with dummy data here -->
+            <tr>
+              <td>MMR</td>
+              <td>{{child.mmr}}</td>
+            </tr>
+            <tr>
+              <td>Meningitis</td>
+              <td>{{child.meningitis}}</td>
+            </tr>
+            
           </tbody>
         </table>
       </div>
-    </ion-card-content>
+
+  </ion-card>
+  <ion-card>
+    <ng-template #elseData>
+      no visits at data found, please add a visit first.
+    </ng-template>
   </ion-card>
 </ion-content>

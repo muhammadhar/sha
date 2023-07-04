@@ -6,6 +6,8 @@ import { SocialSharing } from '@awesome-cordova-plugins/social-sharing';
 //   FileTransferObject,
 // } from '@awesome-cordova-plugins/file-transfer/ngx';
 import { File } from '@awesome-cordova-plugins/file/ngx';
+import { IChildVisit } from '../pastvisit/pastvisit';
+import { LocalStorageService } from '../services/localstorage.service';
 // import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
 // import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 // import { FilePath } from '@awesome-cordova-plugins/file-path/ngx';
@@ -42,7 +44,8 @@ export class SearchPage implements OnInit {
   noChildFound: boolean = false;
 
   constructor(
-    private file: File // private androidPermissions: AndroidPermissions, // private fileTransfer: FileTransfer, // private filePath: FilePath, // private fileOpener: FileOpener, // private platform: Platform
+    private file: File, // private androidPermissions: AndroidPermissions, // private fileTransfer: FileTransfer, // private filePath: FilePath, // private fileOpener: FileOpener, // private platform: Platform
+    private _storage: LocalStorageService
   ) {}
   searchItems() {
     this.searchResults = this.childs.filter((child) =>
@@ -89,19 +92,51 @@ export class SearchPage implements OnInit {
   }
 
   onDownload(child: IChild) {
-    // this.createAndWriteCSV(child);
+    const childVisit: IChildVisit[] = this._storage.getItem(child.id);
+    console.log(childVisit);
+    if (childVisit.length > 1) {
+      const lastIndex = childVisit.length - 1;
+      this.createAndWriteCSVOfSingleChild(childVisit[lastIndex]);
+    } else {
+      this.createAndWriteCSVOfSingleChild(childVisit[0]);
+    }
   }
 
-  convertObjectToCSV(object: IChild): string {
+  convertObjectToCSV(object: IChildVisit): string {
     const keys = Object.keys(object);
-    const header = keys.join(',');
+    const header = keys.join(', ');
     //@ts-ignore
     const values = keys.map((key) => object[key]);
-    const row = values.map((value) => `"${value}"`).join(',');
+    const row = values.map((value) => `"${value}"`).join(', ');
 
     return `${header}\n${row}`;
   }
 
+  createAndWriteCSVOfSingleChild(child: IChildVisit) {
+    const fileName = Date.now().toString() + 'data.csv';
+    const csvString = this.convertObjectToCSV(child);
+
+    const dataDirectory = this.file.dataDirectory;
+
+    this.file
+      .writeFile(dataDirectory, fileName, csvString, { replace: true })
+      .then(() => {
+        const filePath = dataDirectory + fileName;
+        const message = 'child' + ' CSV file downloaded successfully.';
+
+        // Share the CSV file using SocialSharing
+        SocialSharing.share(undefined, undefined, filePath, message)
+          .then(() => {
+            console.log('CSV file shared successfully.');
+          })
+          .catch((error: any) => {
+            console.error('Error sharing CSV file:', error);
+          });
+      })
+      .catch((error: any) => {
+        console.error('Error creating and writing CSV file:', error);
+      });
+  }
   createAndWriteCSV(child: IChild[]) {
     const fileName = Date.now().toString() + 'data.csv';
     const csvString = this.convertArrayToCSV(child);
@@ -151,5 +186,10 @@ export class SearchPage implements OnInit {
     });
 
     return `${header}\n\n${rows.join('\n\n\n')}`;
+  }
+
+  isPrintable(child: IChild): boolean {
+    const childData: IChildVisit[] = this._storage.getItem(child.id);
+    return childData.length > 0 ? false : true;
   }
 }

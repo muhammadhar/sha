@@ -1,21 +1,45 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LocalStorageService } from '../services/localstorage.service';
 import { IChild } from '../search/search.page';
 import { ToastService } from '../services/ToastService.service';
-
+import { IChildVisit } from '../pastvisit/pastvisit';
+import { IonInput, IonSelect } from '@ionic/angular';
 @Component({
   selector: 'app-currentvisit',
   templateUrl: './currentvisit.page.html',
   styleUrls: ['./currentvisit.page.scss'],
 })
 export class CurrentvisitPage implements OnInit {
+  //@ts-ignore
+  @ViewChild('visionInput') visionInput: IonInput;
+  //@ts-ignore
+  @ViewChild('palmarPallorInput') palmarPallorInput: IonInput;
+  //@ts-ignore
+  @ViewChild('hygieneInput') hygieneInput: IonInput;
+  //@ts-ignore
+  @ViewChild('carriesInput') carriesInput: IonInput;
+  //@ts-ignore
+  @ViewChild('scalingInput') scalingInput: IonInput;
+  //@ts-ignore
+  @ViewChild('gapsInput') gapsInput: IonInput;
+  //@ts-ignore
+  @ViewChild('typhoidInput') typhoidInput: IonInput;
+  //@ts-ignore
+  @ViewChild('chickenpoxInput') chickenpoxInput: IonInput;
+  //@ts-ignore
+  @ViewChild('hepatitisAInput') hepatitisAInput: IonInput;
+  //@ts-ignore
+  @ViewChild('mmrInput') mmrInput: IonInput;
+  //@ts-ignore
+  @ViewChild('meningitisInput') meningitisInput: IonInput;
   visitForm!: FormGroup;
-  visitData : any;
+  visitData: any;
   // Form fields
   childId = '';
   childName = '';
+  visit = [];
   date = '';
   weight = '';
   height = '';
@@ -41,11 +65,11 @@ export class CurrentvisitPage implements OnInit {
     private formBuilder: FormBuilder,
     private localStorageService: LocalStorageService,
     private route: ActivatedRoute,
-    private _toast: ToastService
+    private _toast: ToastService,
+    private rotuer: Router
   ) {
     this.visitForm = this.formBuilder.group({
       childName: ['', Validators.required],
-      date: ['', Validators.required],
       weight: ['', Validators.required],
       height: ['', Validators.required],
       bmi: ['', Validators.required],
@@ -77,44 +101,40 @@ export class CurrentvisitPage implements OnInit {
   }
 
   onSubmit() {
-      const newData = {
-        childName: this.childName,
-        date: this.date,
-        weight: this.weight,
-        height: this.height,
-        bmi: this.bmi,
-        growthVelocity: this.growthVelocity,
-        muac: this.muac,
-        earWax: this.earWax,
-        vision: this.vision,
-        palmarPallor: this.palmarPallor,
-        hygiene: this.hygiene,
-        carries: this.carries,
-        extraction: this.extraction,
-        scaling: this.scaling,
-        gaps: this.gaps,
-        chickenpox: this.chickenpox,
-        hepatitisA: this.hepatitisA,
-        mmr: this.mmr,
-        meningitis: this.meningitis,
-        typhoid: this.typhoid,
-        epiStatus: this.epiStatus,
-      };
-      console.log('new data ', newData);
-      const dataArray = this.getArrayFromLocalStorage(this.childId); // Retrieve existing array from local storage
-      dataArray.push(newData); // Push the new object into the array
-      this.saveArrayToLocalStorage(this.childId, dataArray); // Store the updated array back into local storage
+    const newData: IChildVisit = {
+      childName: this.childName,
+      date: this.getCurrentDate(),
+      weight: this.weight,
+      height: this.height,
+      bmi: this.bmi,
+      growthVelocity: this.growthVelocity,
+      muac: this.muac,
+      earWax: this.earWax,
+      vision: this.vision,
+      palmarPallor: this.palmarPallor,
+      hygiene: this.hygiene,
+      carries: this.carries,
+      scaling: this.scaling,
+      gaps: this.gaps,
+      chickenpox: this.chickenpox,
+      hepatitisA: this.hepatitisA,
+      mmr: this.mmr,
+      meningitis: this.meningitis,
+      typhoid: this.typhoid,
+      epiStatus: this.epiStatus,
+    };
+    console.log('new data ', newData);
+    const dataArray: IChildVisit[] = this.getArrayFromLocalStorage(
+      this.childId
+    ); // Retrieve existing array from local storage
+    dataArray.push(newData); // Push the new object into the array
+    this.saveArrayToLocalStorage(this.childId, dataArray); // Store the updated array back into local storage
 
-      this._toast.create(
-        'new visit added successfully',
-        'success',
-        false,
-        2000
-      );
+    this._toast.create('new visit added successfully', 'success', false, 2000);
 
-      this.visitForm.reset();
+    this.visitForm.reset();
+    this.rotuer.navigate(['members/dashboard']);
   }
-
 
   private getChildIdFromParam(): string {
     const childId = this.route.snapshot.paramMap.get('childId');
@@ -129,7 +149,7 @@ export class CurrentvisitPage implements OnInit {
     return filteredChild || null;
   }
 
-  private getArrayFromLocalStorage(childId: string): any[] {
+  private getArrayFromLocalStorage(childId: string): IChildVisit[] {
     const existingArray = this.localStorageService.getItem(childId);
     return existingArray ? existingArray : [];
   }
@@ -144,5 +164,14 @@ export class CurrentvisitPage implements OnInit {
     const month = (today.getMonth() + 1).toString().padStart(2, '0');
     const day = today.getDate().toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+  handleNextInput(event: any, nextInput?: IonInput | IonSelect) {
+    if (event.detail.value && nextInput) {
+      if (nextInput instanceof IonInput) {
+        nextInput.setFocus();
+      } else if (nextInput instanceof IonSelect) {
+        nextInput.open();
+      }
+    }
   }
 }

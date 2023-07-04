@@ -1,43 +1,51 @@
 /* past-visits.css */
+ion-card {
+  padding: 0px 05px;
+}
 
 .table-container {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  
-  .table-container table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid black;
-  }
-  
-  .table-container th,
-  .table-container td {
-    text-align: center;
-    padding: 8px;
-    border: 1px solid black;
-  }
-  
-  .table-container th {
-    background-color: lightgray;
-  }
-  
-  .content-section {
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-  
-  .title {
-    font-weight: bold;
-  }
-  
-  .title-with-data {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .data {
-    font-weight: bold;
-  }
-  
+  width: 100%;
+  margin-bottom: 20px;
+  color: black;
+  overflow-x: auto; /* Add this line to enable horizontal scrolling if needed */
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid black;
+  table-layout: fixed; /* Add this line to enforce a fixed table layout */
+}
+
+.table-container th,
+.table-container td {
+  text-align: center;
+  padding: 5px;
+  border: 1px solid black;
+}
+
+.table-container th {
+  background-color: lightgray;
+  color: black;
+  font-size: large;
+}
+
+.content-section {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.title {
+  font-weight: bold;
+  color: black;
+}
+
+.title-with-data {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.data {
+  font-weight: bold;
+}
