@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { enGB } from 'date-fns/locale';
 import { Platform } from '@ionic/angular';
 
+
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 interface Ischool {
@@ -210,7 +211,7 @@ export class SearchPage implements OnInit {
     return childData.length > 0 ? false : true;
   }
 
-  createPdf(childId: string): void {
+  async createPdf(childId: string) {
     const childVisit: IChildVisit = this._storage.getItem(childId);
     const childArray: IChild[] = this._storage.getItem('childs');
     const childDetails: IChild = childArray.find(
@@ -341,29 +342,51 @@ export class SearchPage implements OnInit {
 
     this.pdfObject = pdfMake.createPdf(docDef);
     if (this.plt.is('cordova')) {
-      this.pdfObject.getBase64().then((pdf) => {
-        const fileName = Date.now().toString() + 'child.pdf';
+      
+        try {
+          const pdfDocGenerator = pdfMake.createPdf(docDef);
 
-        const dataDirectory = this.file.dataDirectory;
+          // Generate the PDF as a data URL
+          const pdfAsDataUrl = await this.getPdfAsDataUrl(pdfDocGenerator);
+      
+          // Generate a unique file name
+          const fileName = 'myFile.pdf';
+      
+          // Get the device's data directory
+          const dataDirectory = this.file.dataDirectory;
+      
+          // Convert the data URL to Blob
+          const pdfBlob = this.dataURLToBlob(pdfAsDataUrl);
 
-        this.file
-          .writeFile(dataDirectory, fileName, pdf, { replace: true })
-          .then((result) => {
-            const filePath = dataDirectory + fileName;
-            const message = 'Child PDF file downloaded successfully.';
-
-            // Share the PDF file using FileOpener
-            this.fileOpener
-              .open(filePath, 'application/pdf')
-              .then(() => console.log('File opened successfully'))
-              .catch((error) => console.error('Error opening file:', error));
-          })
-          .catch((error: any) => {
-            console.error('Error creating and writing PDF file:', error);
-          });
-      });
+          const fileEntry = await this.file.writeFile(dataDirectory, fileName, pdfBlob, { replace: true });
+          await this.fileOpener.open(fileEntry.nativeURL,"application/pdf");
+              
+        } catch (error) {
+          console.log('some thing wrong with opening the file', error);
+        }
+      // });
     } else {
       this.pdfObject.download(`${childDetails.childName}.pdf`);
     }
   }
+
+   
+getPdfAsDataUrl(pdfDocGenerator: any): Promise<string> {
+  return new Promise((resolve, reject) => {
+    pdfDocGenerator.getBase64((dataUrl: string) => {
+      resolve(dataUrl);
+    });
+  });
+}
+
+dataURLToBlob(dataUrl: string): Blob {
+  const byteString = atob(dataUrl.split(',')[1]);
+  const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
+}
 }

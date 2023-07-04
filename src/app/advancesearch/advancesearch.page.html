@@ -1,0 +1,158 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Advance Search</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Add the search form -->
+  <form (ngSubmit)="searchChildren()">
+    <!-- Child Name -->
+    <div class="form-group">
+      <label for="childName">Child Name</label>
+      <input
+        type="text"
+        id="childName"
+        class="form-control"
+        [(ngModel)]="searchCriteria.childName"
+        placeholder="Child Name"
+      />
+    </div>
+    <!-- School -->
+    <div class="form-group">
+      <label for="school">School</label>
+      <select
+        id="school"
+        class="form-control"
+        [(ngModel)]="searchCriteria.school"
+      >
+        <option value="">Select School</option>
+        <option *ngFor="let school of schools" [value]="school.name">
+          {{ school.name }}
+        </option>
+      </select>
+    </div>
+    <!-- Branch -->
+    <div class="form-group">
+      <label for="branch">Branch</label>
+      <input
+        type="text"
+        id="branch"
+        class="form-control"
+        [(ngModel)]="searchCriteria.branch"
+        placeholder="Branch"
+      />
+    </div>
+    <!-- From Date -->
+    <div class="form-group">
+      <label for="fromDate">From Date</label>
+      <input
+        type="date"
+        id="fromDate"
+        class="form-control"
+        [(ngModel)]="searchCriteria.fromDate"
+        placeholder="From Date"
+      />
+    </div>
+    <!-- To Date -->
+    <div class="form-group">
+      <label for="toDate">To Date</label>
+      <input
+        type="date"
+        id="toDate"
+        class="form-control"
+        [(ngModel)]="searchCriteria.toDate"
+        placeholder="To Date"
+      />
+    </div>
+    <!-- Chickenpox Missed -->
+    <div class="form-check">
+      <input
+        type="checkbox"
+        id="chickenpoxMissed"
+        class="form-check-input"
+        [(ngModel)]="searchCriteria.chickenpoxMissed"
+      />
+      <label class="form-check-label" for="chickenpoxMissed"
+        >Chickenpox Missed</label
+      >
+    </div>
+    <!-- Hepatitis A Missed -->
+    <div class="form-check">
+      <input
+        type="checkbox"
+        id="hepatitisAMissed"
+        class="form-check-input"
+        [(ngModel)]="searchCriteria.hepatitisAMissed"
+      />
+      <label class="form-check-label" for="hepatitisAMissed"
+        >Hepatitis A Missed</label
+      >
+    </div>
+    <!-- MMR Missed -->
+    <div class="form-check">
+      <input
+        type="checkbox"
+        id="mmrMissed"
+        class="form-check-input"
+        [(ngModel)]="searchCriteria.mmrMissed"
+      />
+      <label class="form-check-label" for="mmrMissed">MMR Missed</label>
+    </div>
+    <!-- Meningitis Missed -->
+    <div class="form-check">
+      <input
+        type="checkbox"
+        id="meningitisMissed"
+        class="form-check-input"
+        [(ngModel)]="searchCriteria.meningitisMissed"
+      />
+      <label class="form-check-label" for="meningitisMissed"
+        >Meningitis Missed</label
+      >
+    </div>
+    <!-- Typhoid Missed -->
+    <div class="form-check">
+      <input
+        type="checkbox"
+        id="typhoidMissed"
+        class="form-check-input"
+        [(ngModel)]="searchCriteria.typhoidMissed"
+      />
+      <label class="form-check-label" for="typhoidMissed">Typhoid Missed</label>
+    </div>
+    <!-- EpiStatus Missed -->
+    <div class="form-check">
+      <input
+        type="checkbox"
+        id="epiStatusMissed"
+        class="form-check-input"
+        [(ngModel)]="searchCriteria.epiStatusMissed"
+      />
+      <label class="form-check-label" for="epiStatusMissed"
+        >EpiStatus Missed</label
+      >
+    </div>
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+
+  <!-- Display filtered children -->
+  <div *ngIf="filteredChildren.length > 0">
+    <div class="card" *ngFor="let child of filteredChildren">
+      <div class="card-body">
+        <h5 class="card-title">{{ child.childName }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">
+          {{ child.selectedSchool }}
+        </h6>
+        <p class="card-text">DOB: {{ child.dateOfBirth }}</p>
+        <p class="card-text">Email: {{ child.email }}</p>
+        <p class="card-text">WhatsApp: {{ child.whatsapp }}</p>
+        <!-- Add more details from the detailChild object -->
+        <p class="card-text">EpiStatus: {{ child.epiStatus }}</p>
+        <p class="card-text">Chickenpox: {{ child.chickenpox }}</p>
+        <!-- Add more fields as needed -->
+      </div>
+    </div>
+  </div>
+</ion-content>

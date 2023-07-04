@@ -53,7 +53,11 @@ const routes: Routes = [
     path: 'past_visits/:childId',
     loadChildren: () =>
       import('./pastvisit/pastvisit.module').then((m) => m.PastvisitPageModule),
+  },  {
+    path: 'advancesearch',
+    loadChildren: () => import('./advancesearch/advancesearch.module').then( m => m.AdvancesearchPageModule)
   },
+
 ];
 
 @NgModule({
