@@ -5,7 +5,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-card *ngIf="childVisit.length > 0; else elseData">
+  <ion-card *ngIf="childVisit.visits.length > 0; else elseData">
     <ion-card-header style="text-align: center;">
       <ion-card-title>{{ child.childName }}</ion-card-title>
     </ion-card-header>
@@ -23,7 +23,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let cvisit of childVisit">
+            <tr *ngFor="let cvisit of childVisit.lastFiveVisits">
               <td>{{cvisit.date}}</td>
               <td>{{cvisit.weight}}</td>
               <td>{{cvisit.height}}</td>

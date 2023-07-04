@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LocalStorageService } from '../services/localstorage.service';
 import { IChild } from '../search/search.page';
 import { ToastService } from '../services/ToastService.service';
-import { IChildVisit } from '../pastvisit/pastvisit';
+import { IChildVisit, IVisit } from '../pastvisit/pastvisit';
 import { IonInput, IonSelect } from '@ionic/angular';
 @Component({
   selector: 'app-currentvisit',
@@ -35,11 +35,11 @@ export class CurrentvisitPage implements OnInit {
   //@ts-ignore
   @ViewChild('meningitisInput') meningitisInput: IonInput;
   visitForm!: FormGroup;
-  visitData: any;
+  lastFiveVisits: IVisit[] = [];
   // Form fields
   childId = '';
   childName = '';
-  visit = [];
+  visits: IVisit[] = [];
   date = '';
   weight = '';
   height = '';
@@ -101,14 +101,45 @@ export class CurrentvisitPage implements OnInit {
   }
 
   onSubmit() {
-    const newData: IChildVisit = {
-      childName: this.childName,
+    // console.log('new data ', newData);
+    const dataArray: IChildVisit = this.getArrayFromLocalStorage(this.childId);
+    if (Object.keys(dataArray).length > 0) {
+      this.visits = dataArray.visits;
+      this.lastFiveVisits = dataArray.lastFiveVisits;
+    }
+    console.log(dataArray);
+    this.visits.push({
       date: this.getCurrentDate(),
       weight: this.weight,
       height: this.height,
       bmi: this.bmi,
       growthVelocity: this.growthVelocity,
       muac: this.muac,
+    });
+
+    if (this.visits.length >= 5) {
+      this.lastFiveVisits.pop();
+      this.lastFiveVisits.push({
+        date: this.getCurrentDate(),
+        weight: this.weight,
+        height: this.height,
+        bmi: this.bmi,
+        growthVelocity: this.growthVelocity,
+        muac: this.muac,
+      });
+    } else {
+      this.lastFiveVisits.push({
+        date: this.getCurrentDate(),
+        weight: this.weight,
+        height: this.height,
+        bmi: this.bmi,
+        growthVelocity: this.growthVelocity,
+        muac: this.muac,
+      });
+    }
+
+    const newData: IChildVisit = {
+      childName: this.childName,
       earWax: this.earWax,
       vision: this.vision,
       palmarPallor: this.palmarPallor,
@@ -122,16 +153,11 @@ export class CurrentvisitPage implements OnInit {
       meningitis: this.meningitis,
       typhoid: this.typhoid,
       epiStatus: this.epiStatus,
+      visits: this.visits,
+      lastFiveVisits: this.lastFiveVisits,
     };
-    console.log('new data ', newData);
-    const dataArray: IChildVisit[] = this.getArrayFromLocalStorage(
-      this.childId
-    ); // Retrieve existing array from local storage
-    dataArray.push(newData); // Push the new object into the array
-    this.saveArrayToLocalStorage(this.childId, dataArray); // Store the updated array back into local storage
-
+    this.saveArrayToLocalStorage(this.childId, newData);
     this._toast.create('new visit added successfully', 'success', false, 2000);
-
     this.visitForm.reset();
     this.rotuer.navigate(['members/dashboard']);
   }
@@ -149,12 +175,12 @@ export class CurrentvisitPage implements OnInit {
     return filteredChild || null;
   }
 
-  private getArrayFromLocalStorage(childId: string): IChildVisit[] {
+  private getArrayFromLocalStorage(childId: string): IChildVisit {
     const existingArray = this.localStorageService.getItem(childId);
-    return existingArray ? existingArray : [];
+    return existingArray ? existingArray : {};
   }
 
-  private saveArrayToLocalStorage(childId: string, dataArray: any[]): void {
+  private saveArrayToLocalStorage(childId: string, dataArray: any): void {
     this.localStorageService.setItem(childId, dataArray);
   }
 

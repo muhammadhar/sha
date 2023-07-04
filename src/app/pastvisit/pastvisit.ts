@@ -1,11 +1,5 @@
 export interface IChildVisit {
   childName: string;
-  date: string;
-  weight: string;
-  height: string;
-  bmi: string;
-  growthVelocity: string;
-  muac: string;
   earWax: string;
   vision: string;
   palmarPallor: string;
@@ -19,4 +13,15 @@ export interface IChildVisit {
   meningitis: string;
   typhoid: string;
   epiStatus: string;
+  visits: IVisit[];
+  lastFiveVisits: IVisit[];
+}
+
+export interface IVisit {
+  date: string;
+  weight: string;
+  height: string;
+  bmi: string;
+  growthVelocity: string;
+  muac: string;
 }

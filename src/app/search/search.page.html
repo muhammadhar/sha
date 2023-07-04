@@ -46,7 +46,7 @@
     
           <ion-button size="small" [routerLink]="'/past_visits/' + child.id">Past visits</ion-button>
           <ion-button size="small"  [routerLink]="'/current_visit/' + child.id">Current visit</ion-button>
-          <ion-button size="small"  (click)="onDownload(child)" [disabled]="isPrintable(child)"> &nbsp;Print&nbsp; </ion-button>
+          <ion-button size="small"  (click)="onDownload(child)"> &nbsp;Print&nbsp; </ion-button>
         </div>
       </ion-card-content>
     </ion-card>
