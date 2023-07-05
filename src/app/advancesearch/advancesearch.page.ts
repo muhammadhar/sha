@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LocalStorageService } from '../services/localstorage.service';
 
-
 interface Child {
   id: string;
   childName: string;
@@ -70,32 +69,44 @@ export class AdvancesearchPage implements OnInit {
     mmrMissed: false,
     meningitisMissed: false,
     typhoidMissed: false,
-    epiStatusMissed: false
+    epiStatusMissed: false,
   };
-  constructor (private _storage: LocalStorageService){}
+  constructor(private _storage: LocalStorageService) {}
   ngOnInit() {
     // Retrieve child and detailChild objects from localStorage
     const storedChildren = this._storage.getItem('childs');
+    this.schools = this._storage.getItem('schools');
 
     if (storedChildren) {
-      this.children = storedChildren
-      storedChildren.forEach((child : Child) => this.detailChildren[child.id] = this._storage.getItem(child.id));
+      this.children = storedChildren;
+      storedChildren.forEach(
+        (child: Child) =>
+          (this.detailChildren[child.id] = this._storage.getItem(child.id))
+      );
     }
   }
 
   searchChildren() {
     // Merge child and detailChild objects based on child's ID
-    const mergedChildren = this.children.map(child => {
+    const mergedChildren = this.children.map((child) => {
       const detailChild = this.detailChildren[child.id];
       return { ...child, ...detailChild };
     });
 
     // Perform the search based on search criteria
-    this.filteredChildren = mergedChildren.filter(child => {
-      if (this.searchCriteria.childName && !child.childName.toLowerCase().includes(this.searchCriteria.childName.toLowerCase())) {
+    this.filteredChildren = mergedChildren.filter((child) => {
+      if (
+        this.searchCriteria.childName &&
+        !child.childName
+          .toLowerCase()
+          .includes(this.searchCriteria.childName.toLowerCase())
+      ) {
         return false;
       }
-      if (this.searchCriteria.school && child.selectedSchool !== this.searchCriteria.school) {
+      if (
+        this.searchCriteria.school &&
+        child.selectedSchool !== this.searchCriteria.school
+      ) {
         return false;
       }
       // if (this.searchCriteria.branch && child.branchName !== this.searchCriteria.branch) {
@@ -109,16 +120,25 @@ export class AdvancesearchPage implements OnInit {
           return false;
         }
       }
-      if (this.searchCriteria.chickenpoxMissed && child.chickenpox !== 'missed') {
+      if (
+        this.searchCriteria.chickenpoxMissed &&
+        child.chickenpox !== 'missed'
+      ) {
         return false;
       }
-      if (this.searchCriteria.hepatitisAMissed && child.hepatitisA !== 'missed') {
+      if (
+        this.searchCriteria.hepatitisAMissed &&
+        child.hepatitisA !== 'missed'
+      ) {
         return false;
       }
       if (this.searchCriteria.mmrMissed && child.mmr !== 'missed') {
         return false;
       }
-      if (this.searchCriteria.meningitisMissed && child.meningitis !== 'missed') {
+      if (
+        this.searchCriteria.meningitisMissed &&
+        child.meningitis !== 'missed'
+      ) {
         return false;
       }
       if (this.searchCriteria.typhoidMissed && child.typhoid !== 'missed') {
@@ -130,5 +150,27 @@ export class AdvancesearchPage implements OnInit {
 
       return true;
     });
+
+    this.emptySearchCriteria();
+  }
+
+  emptySearchCriteria() {
+    this.searchCriteria = {
+      childName: '',
+      school: '',
+      branch: '',
+      fromDate: '',
+      toDate: '',
+      chickenpoxMissed: false,
+      hepatitisAMissed: false,
+      mmrMissed: false,
+      meningitisMissed: false,
+      typhoidMissed: false,
+      epiStatusMissed: false,
+    };
+  }
+
+  clearSearch(): void {
+    this.filteredChildren = [];
   }
 }

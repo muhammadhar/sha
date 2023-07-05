@@ -6,7 +6,7 @@ import { SocialSharing } from '@awesome-cordova-plugins/social-sharing';
 //   FileTransferObject,
 // } from '@awesome-cordova-plugins/file-transfer/ngx';
 import { File } from '@awesome-cordova-plugins/file/ngx';
-import { IChildVisit } from '../pastvisit/pastvisit';
+import { IChildVisit, IVisit } from '../pastvisit/pastvisit';
 import { LocalStorageService } from '../services/localstorage.service';
 // import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
 // import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
@@ -19,7 +19,6 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { format } from 'date-fns';
 import { enGB } from 'date-fns/locale';
 import { Platform } from '@ionic/angular';
-
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -224,6 +223,23 @@ export class SearchPage implements OnInit {
     // } else {
     //   this.createAndWriteCSVOfSingleChild(childVisit[0]);
     // }
+    let firstEntryDate = '';
+    const VisitsArray = childVisit.lastFiveVisits.map(
+      (visit: IVisit, index) => {
+        if (index === 0) {
+          firstEntryDate = visit.date;
+        }
+        return [
+          visit.date || '',
+          visit.weight || '',
+          visit.height || '',
+          visit.bmi || '',
+          visit.growthVelocity || '',
+          visit.muac || '',
+        ];
+      }
+    );
+    console.log(VisitsArray);
     const docDef = {
       content: [
         {
@@ -235,7 +251,7 @@ export class SearchPage implements OnInit {
           margin: [0, 0, 0, 3], // Add a 10px bottom margin
         },
         {
-          text: 'Date of Latest Assessment : June, 23, 2023',
+          text: `Date of Latest Assessment : ${this.formateDate(firstEntryDate)}`,
           style: 'header',
           alignment: 'center',
           bold: true,
@@ -248,7 +264,7 @@ export class SearchPage implements OnInit {
             widths: ['*', '*'], // Set both columns to have equal width
             body: [
               [
-                `${childDetails.childName} (S/D)/O ${childDetails.fatherName}`,
+                `${childDetails.childName} S/O ${childDetails.fatherName}`,
                 `DOB: ${this.formateDate(childDetails.dateOfBirth)}`,
               ],
             ],
@@ -268,14 +284,7 @@ export class SearchPage implements OnInit {
                 { text: 'Growth Velocity', bold: true },
                 { text: 'MUAC', bold: true },
               ],
-              [
-                'Value 1',
-                'Value 2',
-                'Value 3',
-                'Value 4',
-                'Value 5',
-                'Value 6',
-              ],
+              ...VisitsArray,
             ],
           },
           margin: [0, 0, 0, 10], // Add a 10px bottom margin
@@ -290,8 +299,11 @@ export class SearchPage implements OnInit {
                 { text: 'Vision', bold: true },
                 { text: 'Palmar Pallor', bold: true },
               ],
-              ['Clean', '6/6', 'Present'],
-              ['Not Clean', '4/6', ''],
+              [
+                `${childVisit.earWax}`,
+                `${childVisit.vision}`,
+                `${childVisit.palmarPallor}`,
+              ],
             ],
           },
           margin: [0, 0, 0, 10],
@@ -311,9 +323,14 @@ export class SearchPage implements OnInit {
                 { text: 'Hygiene', bold: true },
                 { text: 'Carries', bold: true },
                 { text: 'Gaps', bold: true },
-                { text: 'Braces', bold: true },
+                { text: 'Scaling', bold: true },
               ],
-              ['Required', 'Not Required', 'Required', ''],
+              [
+                `${childVisit.hygiene}`,
+                `${childVisit.carries}`,
+                `${childVisit.gaps}`,
+                `${childVisit.scaling}`,
+              ],
             ],
           },
           margin: [0, 0, 0, 10],
@@ -327,12 +344,12 @@ export class SearchPage implements OnInit {
                 { text: 'Vaccine', bold: true },
                 { text: 'Status', bold: true },
               ],
-              ['EPI', 'Missed'],
-              ['Typhoid', 'Given'],
-              ['Chickenpox', 'Disease'],
-              ['Hepatitis A', 'Given'],
-              ['MMR', 'Missed'],
-              ['Meningitis', 'Missed'],
+              ['EPI', `${childVisit.epiStatus}`],
+              ['Typhoid', `${childVisit.typhoid}`],
+              ['Chickenpox', `${childVisit.chickenpox}`],
+              ['Hepatitis A', `${childVisit.hepatitisA}`],
+              ['MMR', `${childVisit.mmr}`],
+              ['Meningitis', `${childVisit.meningitis}`],
             ],
           },
           margin: [0, 0, 0, 10],
@@ -342,51 +359,54 @@ export class SearchPage implements OnInit {
 
     this.pdfObject = pdfMake.createPdf(docDef);
     if (this.plt.is('cordova')) {
-      
-        try {
-          const pdfDocGenerator = pdfMake.createPdf(docDef);
+      try {
+        const pdfDocGenerator = pdfMake.createPdf(docDef);
 
-          // Generate the PDF as a data URL
-          const pdfAsDataUrl = await this.getPdfAsDataUrl(pdfDocGenerator);
-      
-          // Generate a unique file name
-          const fileName = 'myFile.pdf';
-      
-          // Get the device's data directory
-          const dataDirectory = this.file.dataDirectory;
-      
-          // Convert the data URL to Blob
-          const pdfBlob = this.dataURLToBlob(pdfAsDataUrl);
+        // Generate the PDF as a data URL
+        const pdfAsDataUrl = await this.getPdfAsDataUrl(pdfDocGenerator);
 
-          const fileEntry = await this.file.writeFile(dataDirectory, fileName, pdfBlob, { replace: true });
-          await this.fileOpener.open(fileEntry.nativeURL,"application/pdf");
-              
-        } catch (error) {
-          console.log('some thing wrong with opening the file', error);
-        }
+        // Generate a unique file name
+        const fileName = 'myFile.pdf';
+
+        // Get the device's data directory
+        const dataDirectory = this.file.dataDirectory;
+
+        // Convert the data URL to Blob
+        const pdfBlob = this.dataURLToBlob(pdfAsDataUrl);
+
+        const fileEntry = await this.file.writeFile(
+          dataDirectory,
+          fileName,
+          pdfBlob,
+          { replace: true }
+        );
+        await this.fileOpener.open(fileEntry.nativeURL, 'application/pdf');
+      } catch (error) {
+        console.log('some thing wrong with opening the file', error);
+      }
       // });
     } else {
       this.pdfObject.download(`${childDetails.childName}.pdf`);
     }
   }
 
-   
-getPdfAsDataUrl(pdfDocGenerator: any): Promise<string> {
-  return new Promise((resolve, reject) => {
-    pdfDocGenerator.getBase64((dataUrl: string) => {
-      resolve(dataUrl);
+  getPdfAsDataUrl(pdfDocGenerator: any): Promise<string> {
+    return new Promise((resolve, reject) => {
+      pdfDocGenerator.getBase64((dataUrl: string) => {
+        resolve(dataUrl);
+      });
     });
-  });
-}
-
-dataURLToBlob(dataUrl: string): Blob {
-  const byteString = atob(dataUrl.split(',')[1]);
-  const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
   }
-  return new Blob([ab], { type: mimeString });
-}
+
+  dataURLToBlob(dataUrl: string): Blob {
+    console.log(dataUrl); // Add this line to check the value
+
+    const binaryString = window.atob(dataUrl);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return new Blob([bytes.buffer], { type: 'application/pdf' });
+  }
 }

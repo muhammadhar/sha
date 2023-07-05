@@ -10,6 +10,7 @@ export class AppComponent implements OnInit {
   public appPages = [
     { title: 'Dashboard', url: 'members/dashboard', icon: 'home' },
     { title: 'Search', url: '/search', icon: 'search' },
+    { title: 'Advance Search', url: '/advance_search', icon: 'search' },
     { title: 'Add Child', url: '/add_child', icon: 'person' },
     { title: 'Add School', url: '/add_school', icon: 'school' },
     { title: 'Reset Password', url: '/reset_password', icon: 'lock-open' },
