@@ -1,13 +1,24 @@
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
     <ion-title>Advance Search</ion-title>
-    <ion-button *ngIf="filteredChildren.length > 0" slot="end" (click)="clearSearch()" expand="block">
-      Clear Search Results
-    </ion-button>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/members/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ion-header *ngIf="filteredChildren.length > 0">
+    <ion-toolbar >
+       &nbsp;&nbsp; <ion-button size="small" (click)="createAndWriteCSV()" [disabled]="filteredChildren.length === 0">Print</ion-button>
+       <ion-button  slot="end" (click)="clearSearch()" [disabled]="filteredChildren.length === 0">
+        Clear Search Results
+      </ion-button>
+    </ion-toolbar>
+  </ion-header>
   <!-- Add the search form -->
   <div [hidden]="filteredChildren.length > 0">
     <ion-card>
@@ -16,120 +27,99 @@
           <!-- Child Name -->
           <ion-item>
             <ion-label position="stacked">Child Name</ion-label>
-            <ion-input
-              type="text"
-              name="childName"
-              [(ngModel)]="searchCriteria.childName"
-              placeholder="Child Name"
-            ></ion-input>
+            <ion-input type="text" name="childName" [(ngModel)]="searchCriteria.childName" placeholder="Child Name">
+            </ion-input>
           </ion-item>
-    
+
           <!-- School -->
           <ion-item>
             <ion-label position="stacked">School</ion-label>
-            <ion-select
-              name="school"
-              [(ngModel)]="searchCriteria.school"
-              placeholder="Select School"
-            >
+            <ion-select name="school" [(ngModel)]="searchCriteria.school" placeholder="Select School">
               <ion-select-option *ngFor="let school of schools" [value]="school.name">
                 {{ school.name }}
               </ion-select-option>
             </ion-select>
           </ion-item>
-    
+
           <!-- Branch -->
           <ion-item>
             <ion-label position="stacked">Branch</ion-label>
-            <ion-input
-              type="text"
-              name="branch"
-              [(ngModel)]="searchCriteria.branch"
-              placeholder="Branch"
-            ></ion-input>
+            <ion-input type="text" name="branch" [(ngModel)]="searchCriteria.branch" placeholder="Branch"></ion-input>
           </ion-item>
-    
+
           <!-- From Date -->
-          <ion-item>
-            <ion-label position="stacked">From Date</ion-label>
-            <ion-input
-              type="date"
-              name="fromDate"
-              [(ngModel)]="searchCriteria.fromDate"
-              placeholder="From Date"
-            ></ion-input>
-          </ion-item>
-    
-          <!-- To Date -->
-          <ion-item>
-            <ion-label position="stacked">To Date</ion-label>
-            <ion-input
-              type="date"
-              name="toDate"
-              [(ngModel)]="searchCriteria.toDate"
-              placeholder="To Date"
-            ></ion-input>
-          </ion-item>
-    
+          
+              <ion-item>
+                <ion-label position="fixed">Dob from Date</ion-label>
+                <ion-input type="date" name="fromDate" [(ngModel)]="searchCriteria.fromDate">
+                </ion-input>
+              </ion-item>
+              <!-- To Date -->
+              <ion-item>
+                <ion-label position="fixed">Dob to Date</ion-label>
+                <ion-input type="date" name="toDate" [(ngModel)]="searchCriteria.toDate">
+                </ion-input>
+              </ion-item>
+            
+
           <!-- Chickenpox Missed -->
-          <ion-item>
+          <ion-item lines="full">
             <ion-label>Chickenpox Missed</ion-label>
-            <ion-checkbox
-              name="chickenpoxMissed"
-              [(ngModel)]="searchCriteria.chickenpoxMissed"
-            ></ion-checkbox>
+            <ion-checkbox name="chickenpoxMissed" [ngModel]="searchCriteria.chickenpoxMissed !== ''"
+              (ngModelChange)="searchCriteria.chickenpoxMissed = $event ? 'Missed' : ''"></ion-checkbox>
           </ion-item>
-    
+
           <!-- Hepatitis A Missed -->
-          <ion-item>
+          <ion-item lines="full">
             <ion-label>Hepatitis A Missed</ion-label>
-            <ion-checkbox
-              name="hepatitisAMissed"
-              [(ngModel)]="searchCriteria.hepatitisAMissed"
-            ></ion-checkbox>
+            <ion-checkbox name="hepatitisAMissed" [ngModel]="searchCriteria.hepatitisAMissed !== ''"
+              (ngModelChange)="searchCriteria.hepatitisAMissed = $event ? 'Missed' : ''"></ion-checkbox>
           </ion-item>
-    
-          <!-- MMR Missed -->
-          <ion-item>
-            <ion-label>MMR Missed</ion-label>
-            <ion-checkbox
-              name="mmrMissed"
-              [(ngModel)]="searchCriteria.mmrMissed"
-            ></ion-checkbox>
+
+          <!-- MMR -->
+          <ion-item line="full">
+            <ion-label style="margin-right: 5px;">MMR</ion-label>
+            <div slot="end" style="display: flex; align-items: center; padding: 0px">
+              <!-- <ion-item lines="none" slot="end"> -->
+                <ion-label style="margin-right: 15px;">Given</ion-label>
+                <ion-checkbox name="mmrGiven" [ngModel]="searchCriteria.mmrGiven !== ''"
+                  (ngModelChange)="searchCriteria.mmrGiven = $event ? 'Given' : ''"></ion-checkbox>
+              <!-- </ion-item> -->
+              <!-- <ion-item lines="none" slot="end"> -->
+                <ion-label style="margin-right: 15px;">Missed</ion-label>
+                <ion-checkbox name="mmrMissed" [ngModel]="searchCriteria.mmrMissed !== ''"
+                  (ngModelChange)="searchCriteria.mmrMissed = $event ? 'Missed' : ''"></ion-checkbox>
+              <!-- </ion-item> -->
+            </div>
           </ion-item>
-    
+
           <!-- Meningitis Missed -->
-          <ion-item>
+          <ion-item lines="full">
             <ion-label>Meningitis Missed</ion-label>
-            <ion-checkbox
-              name="meningitisMissed"
-              [(ngModel)]="searchCriteria.meningitisMissed"
-            ></ion-checkbox>
+            <ion-checkbox name="meningitisMissed" [ngModel]="searchCriteria.meningitisMissed !== ''"
+              (ngModelChange)="searchCriteria.meningitisMissed = $event ? 'Missed' : ''"></ion-checkbox>
           </ion-item>
-    
+
           <!-- Typhoid Missed -->
-          <ion-item>
+          <ion-item lines="full">
             <ion-label>Typhoid Missed</ion-label>
-            <ion-checkbox
-              name="typhoidMissed"
-              [(ngModel)]="searchCriteria.typhoidMissed"
-            ></ion-checkbox>
+            <ion-checkbox name="typhoidMissed" [ngModel]="searchCriteria.typhoidMissed !== ''"
+              (ngModelChange)="searchCriteria.typhoidMissed = $event ? 'Missed' : ''"></ion-checkbox>
           </ion-item>
-    
+
           <!-- EpiStatus Missed -->
-          <ion-item>
+          <ion-item lines="full">
             <ion-label>EpiStatus Missed</ion-label>
-            <ion-checkbox
-              name="epiStatusMissed"
-              [(ngModel)]="searchCriteria.epiStatusMissed"
-            ></ion-checkbox>
+            <ion-checkbox name="epiStatusMissed" [ngModel]="searchCriteria.epiStatusMissed !== ''"
+              (ngModelChange)="searchCriteria.epiStatusMissed = $event ? 'Missed' : ''"></ion-checkbox>
           </ion-item>
-    
+
+
           <!-- Submit Button -->
           <ion-button expand="full" type="submit">Search</ion-button>
         </form>
-    
-    
+
+
       </ion-card-content>
     </ion-card>
   </div>
@@ -143,19 +133,19 @@
       <ion-card-content>
         <ion-item>Father: {{ child.fatherName }}</ion-item>
         <ion-item>Mother: {{ child.motherName }}</ion-item>
-        <ion-item>Date of Birth: {{ child.dateOfBirth | date: 'short' }}</ion-item>
+        <ion-item>Date of Birth: {{ child.dateOfBirth | date: 'longDate' }}</ion-item>
         <ion-item>Email: {{ child.email }}</ion-item>
         <ion-item>WhatsApp#: {{ child.whatsappNumber }}</ion-item>
         <div style="display:flex; justify-content: space-between; margin-top: 10px;">
-    
+
           <ion-button size="small" [routerLink]="'/past_visits/' + child.id">Past visits</ion-button>
-          <ion-button size="small"  [routerLink]="'/current_visit/' + child.id">Current visit</ion-button>
+          <ion-button size="small" [routerLink]="'/current_visit/' + child.id">Current visit</ion-button>
           <!-- <ion-button size="small"  (click)="onDownload(child)"> &nbsp;Print&nbsp; </ion-button> -->
         </div>
       </ion-card-content>
     </ion-card>
   </ng-container>
-  
+
   <ng-template #noChild>
     <ion-card>
       <ion-card-content class="ion-text-center">
@@ -163,6 +153,6 @@
       </ion-card-content>
     </ion-card>
   </ng-template>
-  
-  
+
+
 </ion-content>

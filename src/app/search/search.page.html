@@ -39,7 +39,8 @@
       <ion-card-content>
         <ion-item>Father: {{ child.fatherName }}</ion-item>
         <ion-item>Mother: {{ child.motherName }}</ion-item>
-        <ion-item>Date of Birth: {{ child.dateOfBirth | date: 'short' }}</ion-item>
+        <ion-item>Gender: {{ child.gender }}</ion-item>
+        <ion-item>Date of Birth: {{ child.dateOfBirth | date: 'longDate' }}</ion-item>
         <ion-item>Email: {{ child.email }}</ion-item>
         <ion-item>WhatsApp#: {{ child.whatsappNumber }}</ion-item>
         <div style="display:flex; justify-content: space-between; margin-top: 10px;">

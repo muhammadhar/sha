@@ -30,6 +30,8 @@ export interface IChild {
   childName: string;
   fatherName: string;
   motherName: string;
+  gender;
+  string;
   dateOfBirth: string;
   email: string;
   whatsappNumber: number;
@@ -251,7 +253,9 @@ export class SearchPage implements OnInit {
           margin: [0, 0, 0, 3], // Add a 10px bottom margin
         },
         {
-          text: `Date of Latest Assessment : ${this.formateDate(firstEntryDate)}`,
+          text: `Date of Latest Assessment : ${this.formateDate(
+            firstEntryDate
+          )}`,
           style: 'header',
           alignment: 'center',
           bold: true,
@@ -351,6 +355,14 @@ export class SearchPage implements OnInit {
               ['MMR', `${childVisit.mmr}`],
               ['Meningitis', `${childVisit.meningitis}`],
             ],
+          },
+          margin: [0, 0, 0, 10],
+        },
+        {
+          style: 'childTable',
+          table: {
+            widths: ['*'],
+            body: [['comments:'], ['  '], ['  ']],
           },
           margin: [0, 0, 0, 10],
         },
