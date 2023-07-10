@@ -113,7 +113,7 @@ export class CurrentvisitPage implements OnInit {
       weight: this.weight,
       height: this.height,
       bmi: this.calculateBMI(this.height, this.weight),
-      growthVelocity: this.calculateGrowthVelocities(this.childId),
+      growthVelocity: this.calculateGrowthVelocity(),
       muac: this.muac,
     });
 
@@ -122,7 +122,7 @@ export class CurrentvisitPage implements OnInit {
       weight: this.weight,
       height: this.height,
       bmi: this.calculateBMI(this.height, this.weight),
-      growthVelocity: this.calculateGrowthVelocities(this.childId),
+      growthVelocity: this.calculateGrowthVelocity(),
       muac: this.muac,
     });
 
@@ -208,49 +208,71 @@ export class CurrentvisitPage implements OnInit {
     return parseFloat(bmi.toFixed(3)).toString();
   }
 
-  calculateGrowthVelocities(id: string): string {
-    const visits = this.localStorageService.getItem(id)?.visits;
-    if (visits) {
-      let growthVelocities = '';
-  
-      if (visits.length < 2) {
-        return growthVelocities;
-      }
-  
-      for (let i = 1; i < visits.length; i++) {
-        const previousVisit = visits[i - 1];
-        const currentVisit = visits[i];
-  
-        const previousHeight = parseFloat(previousVisit.height);
-        const currentHeight = parseFloat(currentVisit.height);
-        const previousDate = new Date(previousVisit.date);
-        const currentDate = new Date(currentVisit.date);
-  
-        if (isNaN(previousHeight) || isNaN(currentHeight)) {
-          continue;
-        }
-  
-        const timeDifferenceInMonths = this.getMonthDifference(
-          previousDate,
-          currentDate
-        );
-  
-        // Skip the calculation if the time difference is zero or very close to zero
-        if (timeDifferenceInMonths <= 0.001) {
-          continue;
-        }
-  
-        const heightDifferenceInCentimeters = currentHeight - previousHeight;
-  
-        const growthVelocity =
-          heightDifferenceInCentimeters / timeDifferenceInMonths;
-        growthVelocities += growthVelocity.toString() + ',';
-      }
-  
-      return growthVelocities.slice(0, -1);
-    } // Remove the trailing comma
-     return "";
-  }
+  calculateGrowthVelocity = () => {
+    const child = this.localStorageService.getItem(this.childId);
+    if (child?.lastFiveVisits) {
+      const lastFiveVisits = child.lastFiveVisits;
+      const previousVisit = lastFiveVisits[lastFiveVisits.length - 2];
+      const currentVisit = lastFiveVisits[lastFiveVisits.length - 1];
+      const daysBetweenVisits = Math.floor(
+        (new Date(currentVisit.date).getTime() -
+          new Date(previousVisit.date).getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+      const heightPreviousVisitCm = parseInt(previousVisit.height);
+      const heightCurrentVisitCm = parseInt(currentVisit.height);
+
+      return (
+        (((heightCurrentVisitCm - heightPreviousVisitCm) / daysBetweenVisits) *
+          365) /
+        100
+      ).toString();
+    }
+    return '';
+  };
+  // calculateGrowthVelocities(id: string): string {
+  //   const visits = this.localStorageService.getItem(id)?.visits;
+  //   if (visits) {
+  //     let growthVelocities = '';
+
+  //     if (visits.length < 2) {
+  //       return growthVelocities;
+  //     }
+
+  //     for (let i = 1; i < visits.length; i++) {
+  //       const previousVisit = visits[i - 1];
+  //       const currentVisit = visits[i];
+
+  //       const previousHeight = parseFloat(previousVisit.height);
+  //       const currentHeight = parseFloat(currentVisit.height);
+  //       const previousDate = new Date(previousVisit.date);
+  //       const currentDate = new Date(currentVisit.date);
+
+  //       if (isNaN(previousHeight) || isNaN(currentHeight)) {
+  //         continue;
+  //       }
+
+  //       const timeDifferenceInMonths = this.getMonthDifference(
+  //         previousDate,
+  //         currentDate
+  //       );
+
+  //       // Skip the calculation if the time difference is zero or very close to zero
+  //       if (timeDifferenceInMonths <= 0.001) {
+  //         continue;
+  //       }
+
+  //       const heightDifferenceInCentimeters = currentHeight - previousHeight;
+
+  //       const growthVelocity =
+  //         heightDifferenceInCentimeters / timeDifferenceInMonths;
+  //       growthVelocities += growthVelocity.toString() + ',';
+  //     }
+
+  //     return growthVelocities.slice(0, -1);
+  //   } // Remove the trailing comma
+  //    return "";
+  // }
 
   getMonthDifference(startDate: Date, endDate: Date): number {
     const startYear = startDate.getFullYear();
