@@ -113,7 +113,7 @@ export class CurrentvisitPage implements OnInit {
       weight: this.weight,
       height: this.height,
       bmi: this.calculateBMI(this.height, this.weight),
-      growthVelocity: this.calculateGrowthVelocity(),
+      growthVelocity: this.growthVelocity,
       muac: this.muac,
     });
 
@@ -128,7 +128,7 @@ export class CurrentvisitPage implements OnInit {
 
     if (this.lastFiveVisits.length > 5) {
       this.lastFiveVisits.shift(); // Remove the first entry (oldest visit)
-    }
+    } 
 
     const newData: IChildVisit = {
       childName: this.childName,
@@ -205,12 +205,12 @@ export class CurrentvisitPage implements OnInit {
     const heightInMeters = numericHeight / 100; // Convert height from cm to meters
     const bmi = numericWeight / (heightInMeters * heightInMeters);
 
-    return parseFloat(bmi.toFixed(3)).toString();
+    return parseFloat(bmi.toFixed(2)).toString();
   }
 
   calculateGrowthVelocity = () => {
     const child = this.localStorageService.getItem(this.childId);
-    if (child?.lastFiveVisits) {
+    if (child?.lastFiveVisits && child.lastFiveVisits.length>=1) { //error on 2nd entry and should b moved to pdf n pastvisits
       const lastFiveVisits = child.lastFiveVisits;
       const previousVisit = lastFiveVisits[lastFiveVisits.length - 2];
       const currentVisit = lastFiveVisits[lastFiveVisits.length - 1];
