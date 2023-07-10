@@ -112,30 +112,22 @@ export class CurrentvisitPage implements OnInit {
       date: this.getCurrentDate(),
       weight: this.weight,
       height: this.height,
-      bmi: this.bmi,
-      growthVelocity: this.growthVelocity,
+      bmi: this.calculateBMI(this.height, this.weight),
+      growthVelocity: this.calculateGrowthVelocities(this.childId),
       muac: this.muac,
     });
 
-    if (this.visits.length >= 5) {
-      this.lastFiveVisits.pop();
-      this.lastFiveVisits.push({
-        date: this.getCurrentDate(),
-        weight: this.weight,
-        height: this.height,
-        bmi: this.bmi,
-        growthVelocity: this.growthVelocity,
-        muac: this.muac,
-      });
-    } else {
-      this.lastFiveVisits.push({
-        date: this.getCurrentDate(),
-        weight: this.weight,
-        height: this.height,
-        bmi: this.bmi,
-        growthVelocity: this.growthVelocity,
-        muac: this.muac,
-      });
+    this.lastFiveVisits.push({
+      date: this.getCurrentDate(),
+      weight: this.weight,
+      height: this.height,
+      bmi: this.calculateBMI(this.height, this.weight),
+      growthVelocity: this.calculateGrowthVelocities(this.childId),
+      muac: this.muac,
+    });
+
+    if (this.lastFiveVisits.length > 5) {
+      this.lastFiveVisits.shift(); // Remove the first entry (oldest visit)
     }
 
     const newData: IChildVisit = {
@@ -199,5 +191,76 @@ export class CurrentvisitPage implements OnInit {
         nextInput.open();
       }
     }
+  }
+  calculateBMI(height: string, weight: string): string {
+    const numericHeight = parseFloat(height);
+    const numericWeight = parseFloat(weight);
+
+    // Check if height and weight are valid numbers
+    if (isNaN(numericHeight) || isNaN(numericWeight)) {
+      throw new Error('Invalid height or weight');
+    }
+
+    // Calculate BMI
+    const heightInMeters = numericHeight / 100; // Convert height from cm to meters
+    const bmi = numericWeight / (heightInMeters * heightInMeters);
+
+    return parseFloat(bmi.toFixed(3)).toString();
+  }
+
+  calculateGrowthVelocities(id: string): string {
+    const visits = this.localStorageService.getItem(id)?.visits;
+    if (visits) {
+      let growthVelocities = '';
+  
+      if (visits.length < 2) {
+        return growthVelocities;
+      }
+  
+      for (let i = 1; i < visits.length; i++) {
+        const previousVisit = visits[i - 1];
+        const currentVisit = visits[i];
+  
+        const previousHeight = parseFloat(previousVisit.height);
+        const currentHeight = parseFloat(currentVisit.height);
+        const previousDate = new Date(previousVisit.date);
+        const currentDate = new Date(currentVisit.date);
+  
+        if (isNaN(previousHeight) || isNaN(currentHeight)) {
+          continue;
+        }
+  
+        const timeDifferenceInMonths = this.getMonthDifference(
+          previousDate,
+          currentDate
+        );
+  
+        // Skip the calculation if the time difference is zero or very close to zero
+        if (timeDifferenceInMonths <= 0.001) {
+          continue;
+        }
+  
+        const heightDifferenceInCentimeters = currentHeight - previousHeight;
+  
+        const growthVelocity =
+          heightDifferenceInCentimeters / timeDifferenceInMonths;
+        growthVelocities += growthVelocity.toString() + ',';
+      }
+  
+      return growthVelocities.slice(0, -1);
+    } // Remove the trailing comma
+     return "";
+  }
+
+  getMonthDifference(startDate: Date, endDate: Date): number {
+    const startYear = startDate.getFullYear();
+    const startMonth = startDate.getMonth();
+    const endYear = endDate.getFullYear();
+    const endMonth = endDate.getMonth();
+
+    const monthsDifference =
+      (endYear - startYear) * 12 + (endMonth - startMonth);
+
+    return monthsDifference;
   }
 }

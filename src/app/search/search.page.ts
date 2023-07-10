@@ -245,6 +245,57 @@ export class SearchPage implements OnInit {
     const docDef = {
       content: [
         {
+          columns: [
+            {
+              width: '*',
+              text: 'Healthcare | Emergency | Vaccines',
+              decoration: 'underline',
+            },
+            {
+              width: '*',
+              table: {
+                widths: ['*', '*'], // Adjust the column widths as needed
+                body: [
+                  [
+                    {
+                      image: await this.getBase64ImageFromURL(
+                        '../../assets/HomeNursing.PNG'
+                      ),
+                      width: 100,
+                      height: 40,
+                      alignment: 'center',
+                      border: [false, false, false, false], // Remove border around the cell
+                      margin: [0, -20, -13, 20],
+                    },
+                    {
+                      text: 'Metacare',
+                      bold: true,
+                      fontSize: 20,
+                      alignment: 'center',
+                      border: [false, false, false, false], // Remove border around the cell
+                      margin: [0, 0, 45, 20],
+                    },
+                  ],
+                ],
+              },
+              layout: {
+                hLineWidth: function (i, node) {
+                  return i === 0 || i === node.table.body.length ? 0 : 1; // Remove the horizontal lines between rows
+                },
+                vLineWidth: function (i) {
+                  return 0; // Remove the vertical lines within the table
+                },
+                paddingLeft: function (i) {
+                  return i === 0 ? 0 : 8; // Add padding to the left of the second column
+                },
+                paddingRight: function (i) {
+                  return i === 0 ? 0 : 8; // Add padding to the right of the first column
+                },
+              },
+            },
+          ],
+        },
+        {
           text: "KID'S GROWTH AND GENERAL HEALTH ASSESSMENT",
           style: 'header',
           alignment: 'center',
@@ -366,6 +417,110 @@ export class SearchPage implements OnInit {
           },
           margin: [0, 0, 0, 10],
         },
+        {
+          style: 'childTable',
+          table: {
+            widths: ['*', '*', '*', '*'],
+            body: [
+              [
+                {
+                  text: 'PARTNERS',
+                  colSpan: 4,
+                  bold: true,
+                  alignment: 'center',
+                },
+                '',
+                '',
+                '',
+              ],
+              [
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/Vaccine.png'
+                  ),
+                  width: 120,
+                  height: 50,
+                  alignment: 'center',
+                },
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/HomeNursing.PNG'
+                  ),
+                  width: 120,
+                  height: 50,
+                  alignment: 'center',
+                },
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/SmileResort.PNG'
+                  ),
+                  width: 120,
+                  height: 50,
+                  alignment: 'center',
+                },
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/BabyMedics.png'
+                  ),
+                  width: 120,
+                  height: 50,
+                  alignment: 'center',
+                },
+              ],
+              [
+                { text: 'Vaccine.pk', alignment: 'center' },
+                { text: 'HomeNursing.pk', alignment: 'center' },
+                { text: 'SmileResort.com', alignment: 'center' },
+                { text: 'BabyMedics.com', alignment: 'center' },
+              ],
+            ],
+          },
+          margin: [0, 0, 0, 5],
+        },
+
+        {
+          style: 'childTable',
+          table: {
+            widths: ['auto', '*', 'auto', '*', 'auto', '*'],
+            body: [
+              [
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/icon1.PNG'
+                  ),
+                  fit: [20, 20],
+                },
+                { text: '051 5735006', alignment: 'center' },
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/icon2.PNG'
+                  ),
+                  fit: [20, 20],
+                },
+                { text: 'info.metacare.pk', alignment: 'center' },
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/icon3.PNG'
+                  ),
+                  fit: [20, 20],
+                },
+                { text: 'Metacare.pk', alignment: 'center' },
+              ],
+              [
+                {
+                  text: 'Main PWD Road, National Police Foundation Islamabad',
+                  colSpan: 6,
+                  alignment: 'center',
+                },
+                '',
+                '',
+                '',
+                '',
+                '',
+              ],
+            ],
+          },
+        },
       ],
     };
 
@@ -420,5 +575,31 @@ export class SearchPage implements OnInit {
       bytes[i] = binaryString.charCodeAt(i);
     }
     return new Blob([bytes.buffer], { type: 'application/pdf' });
+  }
+
+  getBase64ImageFromURL(url) {
+    return new Promise((resolve, reject) => {
+      var img = new Image();
+      img.setAttribute('crossOrigin', 'anonymous');
+
+      img.onload = () => {
+        var canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        var dataURL = canvas.toDataURL('image/png');
+
+        resolve(dataURL);
+      };
+
+      img.onerror = (error) => {
+        reject(error);
+      };
+
+      img.src = url;
+    });
   }
 }
