@@ -14,11 +14,11 @@ import { LocalStorageService } from '../services/localstorage.service';
 import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
 // import * as XLSX from 'xlsx';
 // import { saveAs } from 'file-saver';
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { format } from 'date-fns';
 import { enGB } from 'date-fns/locale';
 import { Platform } from '@ionic/angular';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 

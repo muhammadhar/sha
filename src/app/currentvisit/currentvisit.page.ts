@@ -5,7 +5,17 @@ import { LocalStorageService } from '../services/localstorage.service';
 import { IChild } from '../search/search.page';
 import { ToastService } from '../services/ToastService.service';
 import { IChildVisit, IVisit } from '../pastvisit/pastvisit';
-import { IonInput, IonSelect } from '@ionic/angular';
+import { IonInput, IonSelect, Platform } from '@ionic/angular';
+import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
+import { format } from 'date-fns';
+import { enGB } from 'date-fns/locale';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { File } from '@awesome-cordova-plugins/file/ngx';
+import { SocialSharing } from '@awesome-cordova-plugins/social-sharing';
+import { differenceInDays, parseISO } from 'date-fns';
+
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 @Component({
   selector: 'app-currentvisit',
   templateUrl: './currentvisit.page.html',
@@ -60,13 +70,17 @@ export class CurrentvisitPage implements OnInit {
   meningitis = '';
   typhoid = '';
   epiStatus = '';
+  pdfObject = null;
 
   constructor(
     private formBuilder: FormBuilder,
     private localStorageService: LocalStorageService,
     private route: ActivatedRoute,
     private _toast: ToastService,
-    private rotuer: Router
+    private rotuer: Router,
+    private file: File, // private androidPermissions: AndroidPermissions, // private fileTransfer: FileTransfer, // private filePath: FilePath,  // private platform: Platform
+    private plt: Platform,
+    private fileOpener: FileOpener
   ) {
     this.visitForm = this.formBuilder.group({
       childName: ['', Validators.required],
@@ -122,13 +136,13 @@ export class CurrentvisitPage implements OnInit {
       weight: this.weight,
       height: this.height,
       bmi: this.calculateBMI(this.height, this.weight),
-      growthVelocity: this.calculateGrowthVelocity(),
+      growthVelocity: this.growthVelocity,
       muac: this.muac,
     });
 
     if (this.lastFiveVisits.length > 5) {
       this.lastFiveVisits.shift(); // Remove the first entry (oldest visit)
-    } 
+    }
 
     const newData: IChildVisit = {
       childName: this.childName,
@@ -151,7 +165,11 @@ export class CurrentvisitPage implements OnInit {
     this.saveArrayToLocalStorage(this.childId, newData);
     this._toast.create('new visit added successfully', 'success', false, 2000);
     this.visitForm.reset();
-    this.rotuer.navigate(['members/dashboard']);
+    this.calculateGrowthVelocity();
+    this.createPdf(this.childId);
+    setTimeout(() => {
+      this.rotuer.navigate(['members/dashboard']);
+    }, 2000);
   }
 
   private getChildIdFromParam(): string {
@@ -210,26 +228,94 @@ export class CurrentvisitPage implements OnInit {
 
   calculateGrowthVelocity = () => {
     const child = this.localStorageService.getItem(this.childId);
-    if (child?.lastFiveVisits && child.lastFiveVisits.length>=1) { //error on 2nd entry and should b moved to pdf n pastvisits
-      const lastFiveVisits = child.lastFiveVisits;
-      const previousVisit = lastFiveVisits[lastFiveVisits.length - 2];
-      const currentVisit = lastFiveVisits[lastFiveVisits.length - 1];
-      const daysBetweenVisits = Math.floor(
-        (new Date(currentVisit.date).getTime() -
-          new Date(previousVisit.date).getTime()) /
-          (1000 * 60 * 60 * 24)
-      );
-      const heightPreviousVisitCm = parseInt(previousVisit.height);
-      const heightCurrentVisitCm = parseInt(currentVisit.height);
+    let lastFiveVisits = child?.lastFiveVisits;
+    if (lastFiveVisits) {
+      if (lastFiveVisits.length >= 1) {
+        // Sort the visits by date in ascending order
+        lastFiveVisits.sort((a, b) => {
+          const dateA = parseISO(a.date);
+          const dateB = parseISO(b.date);
+          return dateA.getTime() - dateB.getTime();
+        });
 
-      return (
-        (((heightCurrentVisitCm - heightPreviousVisitCm) / daysBetweenVisits) *
-          365) /
-        100
-      ).toString();
+        console.log('Sorted last five visits:', lastFiveVisits);
+
+        for (let i = 1; i < lastFiveVisits.length; i++) {
+          const previousVisit = lastFiveVisits[i - 1];
+          const currentVisit = lastFiveVisits[i];
+          const daysBetweenVisits = differenceInDays(
+            parseISO(currentVisit.date),
+            parseISO(previousVisit.date)
+          );
+          const heightPreviousVisitCm = parseInt(previousVisit.height);
+          const heightCurrentVisitCm = parseInt(currentVisit.height);
+
+          // Check if daysBetweenVisits is positive
+          const growthVelocity =
+            daysBetweenVisits > 0
+              ? (((heightCurrentVisitCm - heightPreviousVisitCm) /
+                  daysBetweenVisits) *
+                  365) /
+                100
+              : 0;
+
+          lastFiveVisits[i].growthVelocity = growthVelocity.toFixed(3);
+
+          console.log(
+            `Days between visits (${i - 1} and ${i}): ${daysBetweenVisits}`
+          );
+          console.log(
+            `Height previous visit (${i - 1}): ${heightPreviousVisitCm}`
+          );
+          console.log(`Height current visit (${i}): ${heightCurrentVisitCm}`);
+          console.log(
+            `Calculated growth velocity (${i}): ${lastFiveVisits[i].growthVelocity}`
+          );
+        }
+
+        // Calculate growth velocity for the first entry
+        const firstVisit = lastFiveVisits[0];
+        firstVisit.growthVelocity = '';
+
+        if (lastFiveVisits.length >= 2) {
+          const secondVisit = lastFiveVisits[1];
+          const daysBetweenFirstAndSecondVisits = differenceInDays(
+            parseISO(secondVisit.date),
+            parseISO(firstVisit.date)
+          );
+          const heightFirstVisitCm = parseInt(firstVisit.height);
+          const heightSecondVisitCm = parseInt(secondVisit.height);
+
+          // Check if daysBetweenFirstAndSecondVisits is positive
+          const growthVelocityFirstVisit =
+            daysBetweenFirstAndSecondVisits > 0
+              ? (((heightSecondVisitCm - heightFirstVisitCm) /
+                  daysBetweenFirstAndSecondVisits) *
+                  365) /
+                100
+              : 0;
+
+          lastFiveVisits[0].growthVelocity =
+            growthVelocityFirstVisit.toFixed(3);
+
+          console.log(
+            `Days between first and second visits: ${daysBetweenFirstAndSecondVisits}`
+          );
+          console.log(`Height first visit: ${heightFirstVisitCm}`);
+          console.log(`Height second visit: ${heightSecondVisitCm}`);
+          console.log(
+            `Calculated growth velocity for the first visit: ${lastFiveVisits[0].growthVelocity}`
+          );
+        }
+      }
     }
-    return '';
+
+    console.log('Updated last five visits:', lastFiveVisits);
+
+    child.lastFiveVisits = lastFiveVisits;
+    this.localStorageService.setItem(this.childId, child);
   };
+
   // calculateGrowthVelocities(id: string): string {
   //   const visits = this.localStorageService.getItem(id)?.visits;
   //   if (visits) {
@@ -284,5 +370,406 @@ export class CurrentvisitPage implements OnInit {
       (endYear - startYear) * 12 + (endMonth - startMonth);
 
     return monthsDifference;
+  }
+
+  async createPdf(childId: string) {
+    const childVisit: IChildVisit = this.localStorageService.getItem(childId);
+    const childArray: IChild[] = this.localStorageService.getItem('childs');
+    const childDetails: IChild = childArray.find(
+      (child) => child.id === childId
+    );
+    // console.log(childVisit);
+    // if (childVisit.length > 1) {
+    //   const lastIndex = childVisit.length - 1;
+    //   this.createAndWriteCSVOfSingleChild(childVisit[lastIndex]);
+    // } else {
+    //   this.createAndWriteCSVOfSingleChild(childVisit[0]);
+    // }
+    let firstEntryDate = '';
+    const VisitsArray = childVisit.lastFiveVisits.map(
+      (visit: IVisit, index) => {
+        if (index === 0) {
+          firstEntryDate = visit.date;
+        }
+        return [
+          visit.date || '',
+          visit.weight || '',
+          visit.height || '',
+          visit.bmi || '',
+          visit.growthVelocity || '',
+          visit.muac || '',
+        ];
+      }
+    );
+    console.log(VisitsArray);
+    const docDef = {
+      content: [
+        {
+          columns: [
+            {
+              width: '*',
+              text: 'Healthcare | Emergency | Vaccines',
+              decoration: 'underline',
+            },
+            {
+              width: '*',
+              table: {
+                widths: ['*', '*'], // Adjust the column widths as needed
+                body: [
+                  [
+                    {
+                      image: await this.getBase64ImageFromURL(
+                        '../../assets/HomeNursing.PNG'
+                      ),
+                      width: 100,
+                      height: 40,
+                      alignment: 'center',
+                      border: [false, false, false, false], // Remove border around the cell
+                      margin: [0, -20, -13, 20],
+                    },
+                    {
+                      text: 'Metacare',
+                      bold: true,
+                      fontSize: 20,
+                      alignment: 'center',
+                      border: [false, false, false, false], // Remove border around the cell
+                      margin: [0, 0, 45, 20],
+                    },
+                  ],
+                ],
+              },
+              layout: {
+                hLineWidth: function (i, node) {
+                  return i === 0 || i === node.table.body.length ? 0 : 1; // Remove the horizontal lines between rows
+                },
+                vLineWidth: function (i) {
+                  return 0; // Remove the vertical lines within the table
+                },
+                paddingLeft: function (i) {
+                  return i === 0 ? 0 : 8; // Add padding to the left of the second column
+                },
+                paddingRight: function (i) {
+                  return i === 0 ? 0 : 8; // Add padding to the right of the first column
+                },
+              },
+            },
+          ],
+        },
+        {
+          text: "KID'S GROWTH AND GENERAL HEALTH ASSESSMENT",
+          style: 'header',
+          alignment: 'center',
+          bold: true,
+          fontSize: 18,
+          margin: [0, 0, 0, 3], // Add a 10px bottom margin
+        },
+        {
+          text: `Date of Latest Assessment : ${this.formateDate(
+            firstEntryDate
+          )}`,
+          style: 'header',
+          alignment: 'center',
+          bold: true,
+          fontSize: 10,
+          margin: [0, 0, 0, 20], // Add a 10px bottom margin
+        },
+        {
+          style: 'childTable',
+          table: {
+            widths: ['*', '*'], // Set both columns to have equal width
+            body: [
+              [
+                `${childDetails.childName} S/O ${childDetails.fatherName}`,
+                `DOB: ${this.formateDate(childDetails.dateOfBirth)}`,
+              ],
+            ],
+          },
+          margin: [0, 0, 0, 10], // Add a 10px bottom margin
+        },
+        {
+          style: 'childTable',
+          table: {
+            widths: ['*', '*', '*', '*', 'auto', '*'],
+            body: [
+              [
+                { text: 'Date', bold: true },
+                { text: 'Weight', bold: true },
+                { text: 'Height', bold: true },
+                { text: 'BMI', bold: true },
+                { text: 'Growth Velocity', bold: true },
+                { text: 'MUAC', bold: true },
+              ],
+              ...VisitsArray,
+            ],
+          },
+          margin: [0, 0, 0, 10], // Add a 10px bottom margin
+        },
+        {
+          style: 'childTable',
+          table: {
+            widths: ['*', '*', '*'],
+            body: [
+              [
+                { text: 'Ear Wax', bold: true },
+                { text: 'Vision', bold: true },
+                { text: 'Palmar Pallor', bold: true },
+              ],
+              [
+                `${childVisit.earWax}`,
+                `${childVisit.vision}`,
+                `${childVisit.palmarPallor}`,
+              ],
+            ],
+          },
+          margin: [0, 0, 0, 10],
+        },
+        {
+          style: 'childTable',
+          table: {
+            widths: ['*', '*', '*', '*'],
+            body: [
+              [
+                { text: 'DENTAL EXAMINATION', colSpan: 4, bold: true },
+                '',
+                '',
+                '',
+              ],
+              [
+                { text: 'Hygiene', bold: true },
+                { text: 'Carries', bold: true },
+                { text: 'Gaps', bold: true },
+                { text: 'Scaling', bold: true },
+              ],
+              [
+                `${childVisit.hygiene}`,
+                `${childVisit.carries}`,
+                `${childVisit.gaps}`,
+                `${childVisit.scaling}`,
+              ],
+            ],
+          },
+          margin: [0, 0, 0, 10],
+        },
+        {
+          style: 'childTable',
+          table: {
+            widths: ['*', '*'],
+            body: [
+              [
+                { text: 'Vaccine', bold: true },
+                { text: 'Status', bold: true },
+              ],
+              ['EPI', `${childVisit.epiStatus}`],
+              ['Typhoid', `${childVisit.typhoid}`],
+              ['Chickenpox', `${childVisit.chickenpox}`],
+              ['Hepatitis A', `${childVisit.hepatitisA}`],
+              ['MMR', `${childVisit.mmr}`],
+              ['Meningitis', `${childVisit.meningitis}`],
+            ],
+          },
+          margin: [0, 0, 0, 10],
+        },
+        {
+          style: 'childTable',
+          table: {
+            widths: ['*'],
+            body: [['comments:'], ['  '], ['  ']],
+          },
+          margin: [0, 0, 0, 10],
+        },
+        {
+          style: 'childTable',
+          table: {
+            widths: ['*', '*', '*', '*'],
+            body: [
+              [
+                {
+                  text: 'PARTNERS',
+                  colSpan: 4,
+                  bold: true,
+                  alignment: 'center',
+                },
+                '',
+                '',
+                '',
+              ],
+              [
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/Vaccine.png'
+                  ),
+                  width: 120,
+                  height: 50,
+                  alignment: 'center',
+                },
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/HomeNursing.PNG'
+                  ),
+                  width: 120,
+                  height: 50,
+                  alignment: 'center',
+                },
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/SmileResort.PNG'
+                  ),
+                  width: 120,
+                  height: 50,
+                  alignment: 'center',
+                },
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/BabyMedics.png'
+                  ),
+                  width: 120,
+                  height: 50,
+                  alignment: 'center',
+                },
+              ],
+              [
+                { text: 'Vaccine.pk', alignment: 'center' },
+                { text: 'HomeNursing.pk', alignment: 'center' },
+                { text: 'SmileResort.com', alignment: 'center' },
+                { text: 'BabyMedics.com', alignment: 'center' },
+              ],
+            ],
+          },
+          margin: [0, 0, 0, 5],
+        },
+
+        {
+          style: 'childTable',
+          table: {
+            widths: ['auto', '*', 'auto', '*', 'auto', '*'],
+            body: [
+              [
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/icon1.PNG'
+                  ),
+                  fit: [20, 20],
+                },
+                { text: '051 5735006', alignment: 'center' },
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/icon2.PNG'
+                  ),
+                  fit: [20, 20],
+                },
+                { text: 'info.metacare.pk', alignment: 'center' },
+                {
+                  image: await this.getBase64ImageFromURL(
+                    '../../assets/icon3.PNG'
+                  ),
+                  fit: [20, 20],
+                },
+                { text: 'Metacare.pk', alignment: 'center' },
+              ],
+              [
+                {
+                  text: 'Main PWD Road, National Police Foundation Islamabad',
+                  colSpan: 6,
+                  alignment: 'center',
+                },
+                '',
+                '',
+                '',
+                '',
+                '',
+              ],
+            ],
+          },
+        },
+      ],
+    };
+
+    this.pdfObject = pdfMake.createPdf(docDef);
+    if (this.plt.is('cordova')) {
+      try {
+        const pdfDocGenerator = pdfMake.createPdf(docDef);
+
+        // Generate the PDF as a data URL
+        const pdfAsDataUrl = await this.getPdfAsDataUrl(pdfDocGenerator);
+
+        // Generate a unique file name
+        const fileName = 'myFile.pdf';
+
+        // Get the device's data directory
+        const dataDirectory = this.file.dataDirectory;
+
+        // Convert the data URL to Blob
+        const pdfBlob = this.dataURLToBlob(pdfAsDataUrl);
+
+        const fileEntry = await this.file.writeFile(
+          dataDirectory,
+          fileName,
+          pdfBlob,
+          { replace: true }
+        );
+        await SocialSharing.share(
+          undefined,
+          undefined,
+          dataDirectory + fileName,
+          'pdf file'
+        );
+      } catch (error) {
+        console.log('some thing wrong with sharing the file', error);
+      }
+      // });
+    } else {
+      this.pdfObject.download(`${childDetails.childName}.pdf`);
+    }
+  }
+
+  getPdfAsDataUrl(pdfDocGenerator: any): Promise<string> {
+    return new Promise((resolve, reject) => {
+      pdfDocGenerator.getBase64((dataUrl: string) => {
+        resolve(dataUrl);
+      });
+    });
+  }
+
+  dataURLToBlob(dataUrl: string): Blob {
+    console.log(dataUrl); // Add this line to check the value
+
+    const binaryString = window.atob(dataUrl);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return new Blob([bytes.buffer], { type: 'application/pdf' });
+  }
+
+  getBase64ImageFromURL(url) {
+    return new Promise((resolve, reject) => {
+      var img = new Image();
+      img.setAttribute('crossOrigin', 'anonymous');
+
+      img.onload = () => {
+        var canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        var dataURL = canvas.toDataURL('image/png');
+
+        resolve(dataURL);
+      };
+
+      img.onerror = (error) => {
+        reject(error);
+      };
+
+      img.src = url;
+    });
+  }
+  formateDate(dateString: string) {
+    const date = new Date(dateString);
+    const formattedDate = format(date, 'd, MMMM yyyy', { locale: enGB });
+    return formattedDate;
   }
 }
