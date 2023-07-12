@@ -226,22 +226,33 @@ export class SearchPage implements OnInit {
     //   this.createAndWriteCSVOfSingleChild(childVisit[0]);
     // }
     let firstEntryDate = '';
-    const VisitsArray = childVisit.lastFiveVisits.map(
-      (visit: IVisit, index) => {
-        if (index === 0) {
-          firstEntryDate = visit.date;
-        }
-        return [
-          visit.date || '',
-          visit.weight || '',
-          visit.height || '',
-          visit.bmi || '',
-          visit.growthVelocity || '',
-          visit.muac || '',
-        ];
+    let UpdatedVisitsArray = [];
+    if (childVisit.lastFiveVisits.length > 1) {
+      UpdatedVisitsArray = childVisit.lastFiveVisits.sort((a, b) => {
+        //@ts-ignore
+        const dateA = new Date(a.date);
+        //@ts-ignore
+        const dateB = new Date(b.date);
+        //@ts-ignore
+        return dateB - dateA;
+      });
+    } else {
+      UpdatedVisitsArray = childVisit.lastFiveVisits;
+    }
+    const VisitsArray = UpdatedVisitsArray.map((visit: IVisit, index) => {
+      if (index === 0) {
+        firstEntryDate = visit.date;
       }
-    );
-    console.log(VisitsArray);
+      return [
+        visit.date || '',
+        visit.weight || '',
+        visit.height || '',
+        visit.bmi || '',
+        visit.growthVelocity || '',
+        visit.muac || '',
+      ];
+    });
+    console.log('visit array', VisitsArray);
     const docDef = {
       content: [
         {
@@ -319,7 +330,11 @@ export class SearchPage implements OnInit {
             widths: ['*', '*'], // Set both columns to have equal width
             body: [
               [
-                `${childDetails.childName} S/O ${childDetails.fatherName}`,
+                `${childDetails.childName} ${
+                  childDetails.gender.includes('male' || 'Male')
+                    ? '  S/O  '
+                    : '  D/O  '
+                } ${childDetails.fatherName}`,
                 `DOB: ${this.formateDate(childDetails.dateOfBirth)}`,
               ],
             ],
@@ -533,7 +548,7 @@ export class SearchPage implements OnInit {
         const pdfAsDataUrl = await this.getPdfAsDataUrl(pdfDocGenerator);
 
         // Generate a unique file name
-        const fileName = 'myFile.pdf';
+        const fileName = Date.now().toString() + ' myFile.pdf';
 
         // Get the device's data directory
         const dataDirectory = this.file.dataDirectory;

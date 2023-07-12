@@ -7,13 +7,13 @@ import { ToastService } from '../services/ToastService.service';
 import { IChildVisit, IVisit } from '../pastvisit/pastvisit';
 import { IonInput, IonSelect, Platform } from '@ionic/angular';
 import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
-import { format } from 'date-fns';
+import { differenceInCalendarDays, format, parseISO } from 'date-fns';
 import { enGB } from 'date-fns/locale';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { File } from '@awesome-cordova-plugins/file/ngx';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing';
-import { differenceInDays, parseISO } from 'date-fns';
+import { differenceInDays, parse } from 'date-fns';
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 @Component({
@@ -231,82 +231,65 @@ export class CurrentvisitPage implements OnInit {
     let lastFiveVisits = child?.lastFiveVisits;
     if (lastFiveVisits) {
       if (lastFiveVisits.length >= 1) {
-        // Sort the visits by date in ascending order
-        lastFiveVisits.sort((a, b) => {
-          const dateA = parseISO(a.date);
-          const dateB = parseISO(b.date);
-          return dateA.getTime() - dateB.getTime();
-        });
-
-        console.log('Sorted last five visits:', lastFiveVisits);
+        //   // Sort the visits by date in ascending order
+        //   lastFiveVisits.sort((a, b) => {
+        //     const dateA = parseISO(a.date);
+        //     const dateB = parseISO(b.date);
+        //     return dateA.getTime() - dateB.getTime();
+        //   });
 
         for (let i = 1; i < lastFiveVisits.length; i++) {
           const previousVisit = lastFiveVisits[i - 1];
           const currentVisit = lastFiveVisits[i];
-          const daysBetweenVisits = differenceInDays(
-            parseISO(currentVisit.date),
-            parseISO(previousVisit.date)
+
+          const startDate = parseISO(previousVisit.date);
+          const endDate = parseISO(currentVisit.date);
+
+          const daysBetweenVisits = differenceInCalendarDays(
+            endDate,
+            startDate
           );
-          const heightPreviousVisitCm = parseInt(previousVisit.height);
-          const heightCurrentVisitCm = parseInt(currentVisit.height);
+
+          const heightPreviousVisitCm = parseFloat(previousVisit.height);
+          const heightCurrentVisitCm = parseFloat(currentVisit.height);
 
           // Check if daysBetweenVisits is positive
           const growthVelocity =
             daysBetweenVisits > 0
-              ? (((heightCurrentVisitCm - heightPreviousVisitCm) /
+              ? ((heightCurrentVisitCm - heightPreviousVisitCm) /
                   daysBetweenVisits) *
-                  365) /
-                100
+                365
               : 0;
 
-          lastFiveVisits[i].growthVelocity = growthVelocity.toFixed(3);
-
-          console.log(
-            `Days between visits (${i - 1} and ${i}): ${daysBetweenVisits}`
-          );
-          console.log(
-            `Height previous visit (${i - 1}): ${heightPreviousVisitCm}`
-          );
-          console.log(`Height current visit (${i}): ${heightCurrentVisitCm}`);
-          console.log(
-            `Calculated growth velocity (${i}): ${lastFiveVisits[i].growthVelocity}`
-          );
+          lastFiveVisits[i].growthVelocity = growthVelocity.toFixed(2);
         }
 
         // Calculate growth velocity for the first entry
-        const firstVisit = lastFiveVisits[0];
-        firstVisit.growthVelocity = '';
+        // const firstVisit = lastFiveVisits[0];
+        // firstVisit.growthVelocity = '';
 
-        if (lastFiveVisits.length >= 2) {
-          const secondVisit = lastFiveVisits[1];
-          const daysBetweenFirstAndSecondVisits = differenceInDays(
-            parseISO(secondVisit.date),
-            parseISO(firstVisit.date)
-          );
-          const heightFirstVisitCm = parseInt(firstVisit.height);
-          const heightSecondVisitCm = parseInt(secondVisit.height);
+        // if (lastFiveVisits.length >= 2) {
+        //   const secondVisit = lastFiveVisits[1];
 
-          // Check if daysBetweenFirstAndSecondVisits is positive
-          const growthVelocityFirstVisit =
-            daysBetweenFirstAndSecondVisits > 0
-              ? (((heightSecondVisitCm - heightFirstVisitCm) /
-                  daysBetweenFirstAndSecondVisits) *
-                  365) /
-                100
-              : 0;
+        //   const startDate = parseISO(firstVisit.date);
+        //   const endDate = parseISO(secondVisit.date);
 
-          lastFiveVisits[0].growthVelocity =
-            growthVelocityFirstVisit.toFixed(3);
+        //   const daysBetweenFirstAndSecondVisits = differenceInCalendarDays(endDate, startDate);
 
-          console.log(
-            `Days between first and second visits: ${daysBetweenFirstAndSecondVisits}`
-          );
-          console.log(`Height first visit: ${heightFirstVisitCm}`);
-          console.log(`Height second visit: ${heightSecondVisitCm}`);
-          console.log(
-            `Calculated growth velocity for the first visit: ${lastFiveVisits[0].growthVelocity}`
-          );
-        }
+        //   const heightFirstVisitCm = parseFloat(firstVisit.height);
+        //   const heightSecondVisitCm = parseFloat(secondVisit.height);
+
+        //   // Check if daysBetweenFirstAndSecondVisits is positive
+        //   const growthVelocityFirstVisit =
+        //     daysBetweenFirstAndSecondVisits > 0
+        //       ? (((heightSecondVisitCm - heightFirstVisitCm) /
+        //           daysBetweenFirstAndSecondVisits) *
+        //           365)
+        //       : 0;
+
+        //   lastFiveVisits[0].growthVelocity =
+        //     growthVelocityFirstVisit.toFixed(2);
+        // }
       }
     }
 
@@ -386,21 +369,32 @@ export class CurrentvisitPage implements OnInit {
     //   this.createAndWriteCSVOfSingleChild(childVisit[0]);
     // }
     let firstEntryDate = '';
-    const VisitsArray = childVisit.lastFiveVisits.map(
-      (visit: IVisit, index) => {
-        if (index === 0) {
-          firstEntryDate = visit.date;
-        }
-        return [
-          visit.date || '',
-          visit.weight || '',
-          visit.height || '',
-          visit.bmi || '',
-          visit.growthVelocity || '',
-          visit.muac || '',
-        ];
+    let UpdatedVisitsArray = [];
+    if (childVisit.lastFiveVisits.length > 1) {
+      UpdatedVisitsArray = childVisit.lastFiveVisits.sort((a, b) => {
+        //@ts-ignore
+        const dateA = new Date(a.date);
+        //@ts-ignore
+        const dateB = new Date(b.date);
+        //@ts-ignore
+        return dateB - dateA;
+      });
+    } else {
+      UpdatedVisitsArray = childVisit.lastFiveVisits;
+    }
+    const VisitsArray = UpdatedVisitsArray.map((visit: IVisit, index) => {
+      if (index === 0) {
+        firstEntryDate = visit.date;
       }
-    );
+      return [
+        visit.date || '',
+        visit.weight || '',
+        visit.height || '',
+        visit.bmi || '',
+        visit.growthVelocity || '',
+        visit.muac || '',
+      ];
+    });
     console.log(VisitsArray);
     const docDef = {
       content: [
@@ -479,7 +473,9 @@ export class CurrentvisitPage implements OnInit {
             widths: ['*', '*'], // Set both columns to have equal width
             body: [
               [
-                `${childDetails.childName} S/O ${childDetails.fatherName}`,
+                `${childDetails.childName} ${
+                  childDetails.gender.includes('male') ? '  S/O  ' : '  D/O  '
+                } ${childDetails.fatherName}`,
                 `DOB: ${this.formateDate(childDetails.dateOfBirth)}`,
               ],
             ],
@@ -693,7 +689,7 @@ export class CurrentvisitPage implements OnInit {
         const pdfAsDataUrl = await this.getPdfAsDataUrl(pdfDocGenerator);
 
         // Generate a unique file name
-        const fileName = 'myFile.pdf';
+        const fileName = Date.now().toString() + ' myFile.pdf';
 
         // Get the device's data directory
         const dataDirectory = this.file.dataDirectory;

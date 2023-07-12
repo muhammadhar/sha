@@ -73,8 +73,6 @@ export class LoginPage implements OnInit {
     //   Password: null,
     // });
     // }
-
-    // Example: Simulating login with a loading indicator
   }
 
   forgotPassword() {
