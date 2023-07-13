@@ -77,21 +77,17 @@
           </ion-item>
 
           <!-- MMR -->
-          <ion-item line="full">
-            <ion-label style="margin-right: 5px;">MMR</ion-label>
-            <div slot="end" style="display: flex; align-items: center; padding: 0px">
-              <!-- <ion-item lines="none" slot="end"> -->
-                <ion-label style="margin-right: 15px;">Given</ion-label>
-                <ion-checkbox name="mmrGiven" [ngModel]="searchCriteria.mmrGiven !== ''"
+              <ion-item>
+                <ion-label>MMR Given</ion-label>
+                <ion-checkbox name="mmrGiven" [ngModel]="searchCriteria.mmrGiven === 'Given'"
                   (ngModelChange)="searchCriteria.mmrGiven = $event ? 'Given' : ''"></ion-checkbox>
-              <!-- </ion-item> -->
-              <!-- <ion-item lines="none" slot="end"> -->
-                <ion-label style="margin-right: 15px;">Missed</ion-label>
-                <ion-checkbox name="mmrMissed" [ngModel]="searchCriteria.mmrMissed !== ''"
+              </ion-item>
+ 
+              <ion-item>
+                <ion-label>MMR Missed</ion-label>
+                <ion-checkbox name="mmrMissed" [ngModel]="searchCriteria.mmrMissed === 'Missed'"
                   (ngModelChange)="searchCriteria.mmrMissed = $event ? 'Missed' : ''"></ion-checkbox>
-              <!-- </ion-item> -->
-            </div>
-          </ion-item>
+              </ion-item>
 
           <!-- Meningitis Missed -->
           <ion-item lines="full">

@@ -299,50 +299,6 @@ export class CurrentvisitPage implements OnInit {
     this.localStorageService.setItem(this.childId, child);
   };
 
-  // calculateGrowthVelocities(id: string): string {
-  //   const visits = this.localStorageService.getItem(id)?.visits;
-  //   if (visits) {
-  //     let growthVelocities = '';
-
-  //     if (visits.length < 2) {
-  //       return growthVelocities;
-  //     }
-
-  //     for (let i = 1; i < visits.length; i++) {
-  //       const previousVisit = visits[i - 1];
-  //       const currentVisit = visits[i];
-
-  //       const previousHeight = parseFloat(previousVisit.height);
-  //       const currentHeight = parseFloat(currentVisit.height);
-  //       const previousDate = new Date(previousVisit.date);
-  //       const currentDate = new Date(currentVisit.date);
-
-  //       if (isNaN(previousHeight) || isNaN(currentHeight)) {
-  //         continue;
-  //       }
-
-  //       const timeDifferenceInMonths = this.getMonthDifference(
-  //         previousDate,
-  //         currentDate
-  //       );
-
-  //       // Skip the calculation if the time difference is zero or very close to zero
-  //       if (timeDifferenceInMonths <= 0.001) {
-  //         continue;
-  //       }
-
-  //       const heightDifferenceInCentimeters = currentHeight - previousHeight;
-
-  //       const growthVelocity =
-  //         heightDifferenceInCentimeters / timeDifferenceInMonths;
-  //       growthVelocities += growthVelocity.toString() + ',';
-  //     }
-
-  //     return growthVelocities.slice(0, -1);
-  //   } // Remove the trailing comma
-  //    return "";
-  // }
-
   getMonthDifference(startDate: Date, endDate: Date): number {
     const startYear = startDate.getFullYear();
     const startMonth = startDate.getMonth();
