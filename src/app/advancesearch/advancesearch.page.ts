@@ -105,37 +105,43 @@ export class AdvancesearchPage implements OnInit {
       const detailChild = this.detailChildren[child.id];
       return { ...child, ...detailChild };
     });
-  
+
     const searchCriteriaKeys = Object.keys(this.searchCriteria).filter(
-      (key) =>
-        key !== 'branch' && this.searchCriteria[key] !== ''
+      (key) => key !== 'branch' && this.searchCriteria[key] !== ''
     );
-  
+
     this.filteredChildren = mergedChildren.filter((child) => {
       let matchedCount = 0;
-  
+
       for (let key of searchCriteriaKeys) {
         if (
           key === 'childName' &&
-          child.childName.toLowerCase() === this.searchCriteria[key].toLowerCase()
+          child.childName.toLowerCase() ===
+            this.searchCriteria[key].toLowerCase()
         ) {
           matchedCount++;
         }
-  
-        if (key === 'school' && child.selectedSchool === this.searchCriteria[key]) {
+
+        if (
+          key === 'school' &&
+          child.selectedSchool === this.searchCriteria[key]
+        ) {
           matchedCount++;
         }
-  
+
         if (key === 'fromDate' || key === 'toDate') {
           const fromDate = new Date(this.searchCriteria.fromDate);
           const toDate = new Date(this.searchCriteria.toDate);
           const childDob = new Date(child.dateOfBirth);
-          console.log('inside top')
+          console.log('inside top');
           if (key === 'toDate' && childDob <= toDate) {
             // Case 1: User provided only fromDate, return children from fromDate to any date
             matchedCount++;
-          } else if (key === 'fromDate' && this.searchCriteria['toDate'] === '') {
-            if(childDob >= fromDate && childDob <= toDate){
+          } else if (
+            key === 'fromDate' &&
+            this.searchCriteria['toDate'] !== ''
+          ) {
+            if (childDob >= fromDate && childDob <= toDate) {
               matchedCount++;
             }
           }
@@ -143,65 +149,61 @@ export class AdvancesearchPage implements OnInit {
           const fromDate = new Date(this.searchCriteria.fromDate);
           const currentDate = new Date();
           const childDob = new Date(child.dateOfBirth);
-        
+
           if (childDob >= fromDate && childDob <= currentDate) {
             // Case 2: User provided fromDate only, return children from fromDate to today's date
             matchedCount++;
           }
         }
-        
-  
+
         if (key === 'chickenpoxMissed' && child.chickenpox === 'Pending') {
           matchedCount++;
         }
-  
+
         if (key === 'hepatitisAMissed' && child.hepatitisA === 'Pending') {
           matchedCount++;
         }
-  
+
         if (key === 'mmrMissed' && child.mmr === 'Pending') {
           matchedCount++;
         }
-  
+
         if (key === 'mmrGiven' && child.mmr === 'Given') {
           matchedCount++;
         }
-  
+
         if (key === 'meningitisMissed' && child.meningitis === 'Pending') {
           matchedCount++;
         }
-  
+
         if (key === 'typhoidMissed' && child.typhoid === 'Pending') {
           matchedCount++;
         }
-  
+
         if (key === 'epiStatusMissed' && child.epiStatus === 'Missed') {
           matchedCount++;
         }
       }
-  
+
       return matchedCount === searchCriteriaKeys.length;
     });
-  
+
     console.log('after multi filtering:', this.filteredChildren);
-  
-    if (this.searchCriteria.branch.length > 0) {
+
+    if (this.searchCriteria.branch !== '') {
       const filteredSchools = this.schools.filter(
         (school) => this.searchCriteria.branch === school.branchName
       );
-      for (let school of filteredSchools) {
-        for (let child of mergedChildren) {
-          if (school.name === child.selectedSchool) {
-            console.log('filtered child:', child);
-            this.filteredChildren.push(child);
-          }
-        }
-      }
+
+      this.filteredChildren = this.filteredChildren.filter((child) => {
+        return filteredSchools.some(
+          (school) => school.name === child.selectedSchool
+        );
+      });
     }
-  
+
     this.emptySearchCriteria();
   }
-  
 
   searchChildrenSingleValue() {
     // Merge child and detailChild objects based on child's ID
@@ -227,11 +229,42 @@ export class AdvancesearchPage implements OnInit {
         return true;
       }
 
-      if (this.searchCriteria.fromDate && this.searchCriteria.toDate) {
+      if (
+        this.searchCriteria.fromDate !== '' ||
+        this.searchCriteria.toDate !== ''
+      ) {
+        const toDate = new Date(this.searchCriteria.toDate);
+        const childDob = new Date(child.dateOfBirth);
+        if (
+          this.searchCriteria.toDate !== '' &&
+          this.searchCriteria.fromDate === ''
+        ) {
+          if (childDob <= toDate) {
+            return true;
+          }
+        }
+      }
+      if (
+        this.searchCriteria.fromDate !== '' &&
+        this.searchCriteria.toDate !== ''
+      ) {
         const fromDate = new Date(this.searchCriteria.fromDate);
         const toDate = new Date(this.searchCriteria.toDate);
         const childDob = new Date(child.dateOfBirth);
         if (childDob >= fromDate && childDob <= toDate) {
+          return true;
+        }
+      }
+
+      if (
+        this.searchCriteria.fromDate !== '' &&
+        this.searchCriteria.toDate === ''
+      ) {
+        const fromDate = new Date(this.searchCriteria.fromDate);
+        console.log('from date');
+        const childDob = new Date(child.dateOfBirth);
+
+        if (childDob >= fromDate) {
           return true;
         }
       }

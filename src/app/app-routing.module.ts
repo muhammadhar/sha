@@ -60,7 +60,11 @@ const routes: Routes = [
       import('./advancesearch/advancesearch.module').then(
         (m) => m.AdvancesearchPageModule
       ),
-  }, 
+  },   {
+    path: 'relogin',
+    loadChildren: () => import('./relogin/relogin.module').then( m => m.ReloginPageModule)
+  },
+
 
 ];
 

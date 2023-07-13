@@ -12,7 +12,11 @@
 
 <ion-content [fullscreen]="true">
    <ion-header *ngIf="searchResults.length > 0">
-    <ion-toolbar>&nbsp;&nbsp;<ion-button size="small" (click)="BulkChildDownload(searchResults)">share</ion-button></ion-toolbar>
+    <ion-toolbar>&nbsp;&nbsp;<ion-button size="small" (click)="BulkChildDownload(searchResults)">share</ion-button>
+      <ion-button *ngIf="showClearSearchButton" slot="end" (click)="clearSearch()" expand="block" color="primary" style="margin-right: 10px;">
+        Clear Search
+      </ion-button>
+    </ion-toolbar>
   </ion-header>
   <ion-searchbar [(ngModel)]="searchQuery" (ionChange)="searchItems()"></ion-searchbar>
 
@@ -53,7 +57,5 @@
     </ion-card>
   </ng-container>
 
-  <ion-button *ngIf="showClearSearchButton" (click)="clearSearch()" expand="full" color="medium">
-    Clear Search
-  </ion-button>
+  
 </ion-content>

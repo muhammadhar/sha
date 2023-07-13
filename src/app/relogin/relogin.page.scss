@@ -1,0 +1,37 @@
+#login-content {
+    --background: linear-gradient(to bottom right, #335aa1, #626868);
+  }
+  
+  #login-form {
+    background-color: #fff;
+    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    padding: 20px;
+    border-radius: 20px;
+    width: 100%;
+  }
+  
+  ion-title {
+    font-weight: bold;
+  }
+  
+  ion-grid {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  ion-input {
+    border-radius: 20px;
+  }
+  
+  ion-col {
+    // max-width: 800px;
+    width: 100%;
+  }
+  
+  .custom-btns{
+    display: flex;
+    text-transform: lowercase;
+  }
