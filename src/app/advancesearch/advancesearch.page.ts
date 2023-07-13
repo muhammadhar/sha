@@ -135,8 +135,9 @@ export class AdvancesearchPage implements OnInit {
             // Case 1: User provided only fromDate, return children from fromDate to any date
             matchedCount++;
           } else if (key === 'fromDate' && this.searchCriteria['toDate'] === '') {
-            if(childDob >= fromDate && childDob <= toDate)
-            matchedCount++;
+            if(childDob >= fromDate && childDob <= toDate){
+              matchedCount++;
+            }
           }
         } else if (key === 'fromDate' && this.searchCriteria['toDate'] === '') {
           const fromDate = new Date(this.searchCriteria.fromDate);
