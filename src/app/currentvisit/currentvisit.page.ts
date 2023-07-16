@@ -56,7 +56,7 @@ export class CurrentvisitPage implements OnInit {
   bmi = '';
   growthVelocity = '';
   muac = '';
-  earWax = '';
+  earWax = "";
   vision = '';
   palmarPallor = '';
   hygiene = '';

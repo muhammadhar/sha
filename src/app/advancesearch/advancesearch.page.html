@@ -11,7 +11,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header *ngIf="filteredChildren.length > 0">
+  <ion-header *ngIf="filteredChildren.length > 0" style="position: sticky; top: 0; z-index: 999;">
     <ion-toolbar >
        &nbsp;&nbsp; <ion-button size="small" (click)="createAndWriteCSV()" [disabled]="filteredChildren.length === 0">Print</ion-button>
        <ion-button  slot="end" (click)="clearSearch()" [disabled]="filteredChildren.length === 0">
@@ -50,13 +50,13 @@
           <!-- From Date -->
           
               <ion-item>
-                <ion-label position="fixed">Dob from Date</ion-label>
+                <ion-label position="floating">Dob from Date</ion-label>
                 <ion-input type="date" name="fromDate" [(ngModel)]="searchCriteria.fromDate">
                 </ion-input>
               </ion-item>
               <!-- To Date -->
               <ion-item>
-                <ion-label position="fixed">Dob to Date</ion-label>
+                <ion-label position="floating">Dob to Date</ion-label>
                 <ion-input type="date" name="toDate" [(ngModel)]="searchCriteria.toDate">
                 </ion-input>
               </ion-item>
@@ -121,7 +121,7 @@
   </div>
 
   <!-- Display filtered children -->
-  <ng-container *ngIf="filteredChildren.length > 0; else noChild">
+  <ng-container *ngIf="filteredChildren.length > 0;">
     <ion-card *ngFor="let child of filteredChildren">
       <ion-card-header style="text-align: center;">
         <ion-card-title>{{ child.childName }}</ion-card-title>
@@ -142,7 +142,7 @@
     </ion-card>
   </ng-container>
 
-  <ng-template #noChild>
+  <ng-template *ngIf="resultCardShow">
     <ion-card>
       <ion-card-content class="ion-text-center">
         <ion-card-title>No children found.</ion-card-title>

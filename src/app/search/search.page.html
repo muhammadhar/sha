@@ -11,7 +11,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-   <ion-header *ngIf="searchResults.length > 0">
+   <ion-header *ngIf="searchResults.length > 0" style="position: sticky; top: 0; z-index: 999;">
     <ion-toolbar>&nbsp;&nbsp;<ion-button size="small" (click)="BulkChildDownload(searchResults)">share</ion-button>
       <ion-button *ngIf="showClearSearchButton" slot="end" (click)="clearSearch()" expand="block" color="primary" style="margin-right: 10px;">
         Clear Search

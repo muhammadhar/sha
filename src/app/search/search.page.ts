@@ -30,8 +30,7 @@ export interface IChild {
   childName: string;
   fatherName: string;
   motherName: string;
-  gender;
-  string;
+  gender : string;
   dateOfBirth: string;
   email: string;
   whatsappNumber: number;
@@ -71,6 +70,8 @@ export class SearchPage implements OnInit {
     if (this.searchResults.length === 0) {
       this.noChildFound = true;
       this.showClearSearchButton = true;
+    } else {
+      this.noChildFound = false;
     }
 
     this.showClearSearchButton = true;

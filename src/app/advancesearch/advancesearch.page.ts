@@ -57,6 +57,7 @@ interface IVisit {
 export class AdvancesearchPage implements OnInit {
   children: Child[] = [];
   schools: School[] = [];
+  resultCardShow = false;
   detailChildren: { [id: string]: DetailChild } = {};
 
   filteredChildren: Child[] = [];
@@ -201,7 +202,7 @@ export class AdvancesearchPage implements OnInit {
         );
       });
     }
-
+    this.resultCardShow = this.filteredChildren.length > 0;
     this.emptySearchCriteria();
   }
 
@@ -211,7 +212,7 @@ export class AdvancesearchPage implements OnInit {
       const detailChild = this.detailChildren[child.id];
       return { ...child, ...detailChild };
     });
-
+    console.log('merged children count', mergedChildren.length);
     // Perform the search based on search criteria
     this.filteredChildren = mergedChildren.filter((child) => {
       if (
@@ -321,6 +322,7 @@ export class AdvancesearchPage implements OnInit {
         }
       }
     }
+    this.resultCardShow = this.filteredChildren.length > 0;
     this.emptySearchCriteria();
   }
 
@@ -394,16 +396,49 @@ export class AdvancesearchPage implements OnInit {
     if (objects.length === 0) {
       return ''; // Return an empty string if the array is empty
     }
-
-    const keys = Object.keys(objects[0]);
+  
+    const flattenObject = (obj) => {
+      const flattened = {};
+  
+      const flatten = (currentObj, propName = '') => {
+        for (let key in currentObj) {
+          if (currentObj.hasOwnProperty(key)) {
+            if (key === 'visits' || key === 'earWax') continue; // Ignore the 'visits' property
+            
+  
+            const newKey = propName ? `${propName}.${key}` : key;
+  
+            if (Array.isArray(currentObj[key])) {
+              for (let i = 0; i < currentObj[key].length; i++) {
+                flatten(currentObj[key][i], `${newKey}[${i + 1}]`); // Start index from 1
+              }
+            } else if (typeof currentObj[key] === 'object') {
+              flatten(currentObj[key], newKey);
+            } else {
+              flattened[newKey] = currentObj[key];
+            }
+          }
+        }
+      };
+  
+      flatten(obj);
+  
+      return flattened;
+    };
+  
+    const flattenedObjects = objects.map((object) => flattenObject(object));
+  
+    const keys = Object.keys(flattenedObjects[0]);
     const header = keys.join(',');
-
-    const rows = objects.map((object) => {
-      //@ts-ignore
+  
+    const rows = flattenedObjects.map((object) => {
       const values = keys.map((key) => object[key]);
       return values.map((value) => `"${value}"`).join(', ');
     });
-
+  
     return `${header}\n\n${rows.join('\n\n\n')}`;
   }
+  
+  
+  
 }
