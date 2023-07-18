@@ -7,7 +7,12 @@ import { ToastService } from '../services/ToastService.service';
 import { IChildVisit, IVisit } from '../pastvisit/pastvisit';
 import { IonInput, IonSelect, Platform } from '@ionic/angular';
 import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
-import { differenceInCalendarDays, format, parseISO } from 'date-fns';
+import {
+  differenceInCalendarDays,
+  differenceInCalendarYears,
+  format,
+  parseISO,
+} from 'date-fns';
 import { enGB } from 'date-fns/locale';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -56,7 +61,7 @@ export class CurrentvisitPage implements OnInit {
   bmi = '';
   growthVelocity = '';
   muac = '';
-  earWax = "";
+  earWax = '';
   vision = '';
   palmarPallor = '';
   hygiene = '';
@@ -228,16 +233,74 @@ export class CurrentvisitPage implements OnInit {
 
   calculateGrowthVelocity = () => {
     const child = this.localStorageService.getItem(this.childId);
+    const childDetails = this.localStorageService.getItem('childs').find(ch => ch.id === this.childId)
     let lastFiveVisits = child?.lastFiveVisits;
+    // if (lastFiveVisits) {
+    //   if (lastFiveVisits.length >= 1) {
+    //     //   // Sort the visits by date in ascending order
+    //     //   lastFiveVisits.sort((a, b) => {
+    //     //     const dateA = parseISO(a.date);
+    //     //     const dateB = parseISO(b.date);
+    //     //     return dateA.getTime() - dateB.getTime();
+    //     //   });
+
+    //     for (let i = 1; i < lastFiveVisits.length; i++) {
+    //       const previousVisit = lastFiveVisits[i - 1];
+    //       const currentVisit = lastFiveVisits[i];
+
+    //       const startDate = parseISO(previousVisit.date);
+    //       const endDate = parseISO(currentVisit.date);
+
+    //       const daysBetweenVisits = differenceInCalendarDays(
+    //         endDate,
+    //         startDate
+    //       );
+
+    //       const heightPreviousVisitCm = parseFloat(previousVisit.height);
+    //       const heightCurrentVisitCm = parseFloat(currentVisit.height);
+
+    //       // Check if daysBetweenVisits is positive
+    //       const growthVelocity =
+    //         daysBetweenVisits > 0
+    //           ? ((heightCurrentVisitCm - heightPreviousVisitCm) /
+    //               daysBetweenVisits) *
+    //             365
+    //           : 0;
+
+    //       lastFiveVisits[i].growthVelocity = growthVelocity.toFixed(2);
+    //     }
+
+    //     // Calculate growth velocity for the first entry
+    //     // const firstVisit = lastFiveVisits[0];
+    //     // firstVisit.growthVelocity = '';
+
+    //     // if (lastFiveVisits.length >= 2) {
+    //     //   const secondVisit = lastFiveVisits[1];
+
+    //     //   const startDate = parseISO(firstVisit.date);
+    //     //   const endDate = parseISO(secondVisit.date);
+
+    //     //   const daysBetweenFirstAndSecondVisits = differenceInCalendarDays(endDate, startDate);
+
+    //     //   const heightFirstVisitCm = parseFloat(firstVisit.height);
+    //     //   const heightSecondVisitCm = parseFloat(secondVisit.height);
+
+    //     //   // Check if daysBetweenFirstAndSecondVisits is positive
+    //     //   const growthVelocityFirstVisit =
+    //     //     daysBetweenFirstAndSecondVisits > 0
+    //     //       ? (((heightSecondVisitCm - heightFirstVisitCm) /
+    //     //           daysBetweenFirstAndSecondVisits) *
+    //     //           365)
+    //     //       : 0;
+
+    //     //   lastFiveVisits[0].growthVelocity =
+    //     //     growthVelocityFirstVisit.toFixed(2);
+    //     // }
+    //   }
+    // }
+
     if (lastFiveVisits) {
       if (lastFiveVisits.length >= 1) {
-        //   // Sort the visits by date in ascending order
-        //   lastFiveVisits.sort((a, b) => {
-        //     const dateA = parseISO(a.date);
-        //     const dateB = parseISO(b.date);
-        //     return dateA.getTime() - dateB.getTime();
-        //   });
-
         for (let i = 1; i < lastFiveVisits.length; i++) {
           const previousVisit = lastFiveVisits[i - 1];
           const currentVisit = lastFiveVisits[i];
@@ -245,10 +308,7 @@ export class CurrentvisitPage implements OnInit {
           const startDate = parseISO(previousVisit.date);
           const endDate = parseISO(currentVisit.date);
 
-          const daysBetweenVisits = differenceInCalendarDays(
-            endDate,
-            startDate
-          );
+          const daysBetweenVisits = differenceInDays(endDate, startDate);
 
           const heightPreviousVisitCm = parseFloat(previousVisit.height);
           const heightCurrentVisitCm = parseFloat(currentVisit.height);
@@ -262,34 +322,42 @@ export class CurrentvisitPage implements OnInit {
               : 0;
 
           lastFiveVisits[i].growthVelocity = growthVelocity.toFixed(2);
+
+          const dob = parseISO(childDetails.dateOfBirth);
+          const ageInYears = differenceInCalendarYears(endDate, dob);
+
+          let growthVelocityRange;
+
+          if (ageInYears >= 0 && ageInYears < 1) {
+            growthVelocityRange = childDetails.gender === 'male' ? 25 : 25; // cm per year for boys (0-1 year) and girls (0-1 year)
+          } else if (ageInYears >= 1 && ageInYears < 2) {
+            growthVelocityRange = childDetails.gender === 'male' ? 12 : 12; // cm per year for boys (1-2 years) and girls (1-2 years)
+          } else if (ageInYears >= 2 && ageInYears <= 3) {
+            growthVelocityRange = childDetails.gender === 'male' ? 8 : 8; // cm per year for boys (2-3 years) and girls (2-3 years)
+          } else if (ageInYears >= 4 && ageInYears <= 11) {
+            growthVelocityRange = childDetails.gender === 'male' ? 7 : 8; // cm per year for boys (4-11 years) and girls (4-11 years)
+          } else if (ageInYears > 11 && ageInYears <= 14) {
+            growthVelocityRange = childDetails.gender === 'male' ? 9.5 : 8.3; // cm per year for boys (11-14 years) and girls (11-14 years)
+          } else {
+            growthVelocityRange = 0;
+          }
+
+          // Compare growth velocity against the growth velocity range
+          if (
+            growthVelocity < growthVelocityRange * 0.9 ||
+            growthVelocity > growthVelocityRange * 1.1
+          ) {
+            lastFiveVisits[i].growthVelocity =
+              growthVelocity.toFixed(2) + ' R:' + growthVelocityRange;
+            console.log(
+              `Warning: Growth velocity ${growthVelocity.toFixed(
+                2
+              )} cm/year is not within the expected range of ${growthVelocityRange} cm/year for a child of age ${ageInYears} years and gender ${
+                child.gender
+              }.`
+            );
+          }
         }
-
-        // Calculate growth velocity for the first entry
-        // const firstVisit = lastFiveVisits[0];
-        // firstVisit.growthVelocity = '';
-
-        // if (lastFiveVisits.length >= 2) {
-        //   const secondVisit = lastFiveVisits[1];
-
-        //   const startDate = parseISO(firstVisit.date);
-        //   const endDate = parseISO(secondVisit.date);
-
-        //   const daysBetweenFirstAndSecondVisits = differenceInCalendarDays(endDate, startDate);
-
-        //   const heightFirstVisitCm = parseFloat(firstVisit.height);
-        //   const heightSecondVisitCm = parseFloat(secondVisit.height);
-
-        //   // Check if daysBetweenFirstAndSecondVisits is positive
-        //   const growthVelocityFirstVisit =
-        //     daysBetweenFirstAndSecondVisits > 0
-        //       ? (((heightSecondVisitCm - heightFirstVisitCm) /
-        //           daysBetweenFirstAndSecondVisits) *
-        //           365)
-        //       : 0;
-
-        //   lastFiveVisits[0].growthVelocity =
-        //     growthVelocityFirstVisit.toFixed(2);
-        // }
       }
     }
 
@@ -343,12 +411,15 @@ export class CurrentvisitPage implements OnInit {
         firstEntryDate = visit.date;
       }
       return [
-        visit.date || '',
-        visit.weight || '',
-        visit.height || '',
-        visit.bmi || '',
-        visit.growthVelocity || '',
-        visit.muac || '',
+        { text: visit.date || '' },
+        { text: visit.weight || '' },
+        { text: visit.height || '' },
+        { text: visit.bmi || '' },
+        {
+          text: visit.growthVelocity || '',
+          bold: visit.growthVelocity.includes('R') ? true : false,
+        },
+        { text: visit.muac || '' },
       ];
     });
     console.log(VisitsArray);
