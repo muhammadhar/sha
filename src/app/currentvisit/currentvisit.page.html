@@ -45,7 +45,7 @@
                 name="muac"
                 id="muac"
                 #muacInput
-                (ionChange)="handleNextInput($event, earWaxSelect)"
+                (ionChange)="handleNextInput($event, visionSelect)"
               ></ion-input>
             </ion-item>
           </ion-card>
@@ -54,51 +54,23 @@
         <div class="">
           <ion-card>
             <ion-item>
-              <ion-label position="floating">Ear Wax</ion-label>
-              <ion-select
-                [(ngModel)]="earWax"
-                name="earWax"
-                multiple
-                #earWaxSelect
-                (ionChange)="handleNextInput($event, visionSelect)"
-              >
-                <ion-select-option value="Clean">Clean</ion-select-option>
-                <ion-select-option value="Left Clean">Left Clean</ion-select-option>
-                <ion-select-option value="Right Clean">Right Clean</ion-select-option>
-                <ion-select-option value="Not Clean">Not Clean</ion-select-option>
-              </ion-select>
-            </ion-item>
-
-            <ion-item>
               <ion-label position="floating">Vision</ion-label>
               <ion-select
                 [(ngModel)]="vision"
                 name="vision"
                 #visionSelect
-                (ionChange)="handleNextInput($event, palmarPallorSelect)"
+                (ionChange)="handleNextInput($event, hygieneSelect)"
               >
                 <ion-select-option value="6/6">6/6</ion-select-option>
                 <ion-select-option value="6/6 With Spectacles">6/6 With Spectacles</ion-select-option>
                 <ion-select-option value="Need Assessment">Need assessment</ion-select-option>
               </ion-select>
             </ion-item>
+            
 
-            <ion-item>
-              <ion-label position="floating">Palmar Pallor</ion-label>
-              <ion-select
-                [(ngModel)]="palmarPallor"
-                name="palmarPallor"
-                #palmarPallorSelect
-                (ionChange)="handleNextInput($event, hygieneSelect)"
-              >
-                <ion-select-option value="No Pallor">No Pallor</ion-select-option>
-                <ion-select-option value="Mild Pallor">Mild Pallor</ion-select-option>
-                <ion-select-option value="Severe Pallor">Severe Pallor</ion-select-option>
-              </ion-select>
-            </ion-item>
+            
           </ion-card>
         </div>
-
         <ion-card>
           <ion-card-header>
             DENTAL EXAMINATION
@@ -146,7 +118,7 @@
                 [(ngModel)]="gaps"
                 name="braces"
                 #gapsSelect
-                (ionChange)="handleNextInput($event, epiStatusSelect)"
+                (ionChange)="handleNextInput($event, earWaxSelect)"
               >
                 <ion-select-option value="Normal">Normal</ion-select-option>
                 <ion-select-option value="Abnormal">Abnormal</ion-select-option>
@@ -154,6 +126,38 @@
             </ion-item>
           </ion-card-content>
         </ion-card>
+        <ion-card>
+          
+          <ion-item>
+            <ion-label position="floating">Ear Wax</ion-label>
+            <ion-select
+              [(ngModel)]="earWax"
+              name="earWax"
+              multiple
+              #earWaxSelect
+              (ionChange)="handleNextInput($event, palmarPallorSelect)"
+            >
+              <ion-select-option value="Clean">Clean</ion-select-option>
+              <ion-select-option value="Left Clean">Left Clean</ion-select-option>
+              <ion-select-option value="Right Clean">Right Clean</ion-select-option>
+              <ion-select-option value="Not Clean">Not Clean</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Palmar Pallor</ion-label>
+            <ion-select
+              [(ngModel)]="palmarPallor"
+              name="palmarPallor"
+              #palmarPallorSelect
+              (ionChange)="handleNextInput($event, epiStatusSelect)"
+            >
+              <ion-select-option value="No Pallor">No Pallor</ion-select-option>
+              <ion-select-option value="Mild Pallor">Mild Pallor</ion-select-option>
+              <ion-select-option value="Severe Pallor">Severe Pallor</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-card>
+        
 
         <div class="table-container">
           <ion-card>
