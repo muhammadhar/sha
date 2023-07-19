@@ -26,6 +26,7 @@
     "@awesome-cordova-plugins/file-opener": "^6.3.0",
     "@awesome-cordova-plugins/file-path": "^6.3.0",
     "@awesome-cordova-plugins/file-transfer": "^6.3.0",
+    "@awesome-cordova-plugins/in-app-browser": "^6.4.0",
     "@awesome-cordova-plugins/social-sharing": "^6.3.0",
     "@capacitor/android": "5.0.5",
     "@capacitor/app": "5.0.3",

@@ -10,6 +10,7 @@ import { File } from '@awesome-cordova-plugins/file/ngx';
 import { FilePath } from '@awesome-cordova-plugins/file-path/ngx';
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
 import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
+import { InAppBrowser, } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import {
   FileTransfer,
   FileTransferObject,
@@ -26,6 +27,7 @@ import {
     FileTransfer,
     FileTransferObject,
     FileOpener,
+    InAppBrowser,
   ],
   bootstrap: [AppComponent],
 })

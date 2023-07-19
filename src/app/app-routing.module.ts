@@ -63,7 +63,15 @@ const routes: Routes = [
   },   {
     path: 'relogin',
     loadChildren: () => import('./relogin/relogin.module').then( m => m.ReloginPageModule)
+  },  {
+    path: 'export',
+    loadChildren: () => import('./export/export.module').then( m => m.ExportPageModule)
   },
+  {
+    path: 'import',
+    loadChildren: () => import('./import/import.module').then( m => m.ImportPageModule)
+  },
+
 
 
 ];

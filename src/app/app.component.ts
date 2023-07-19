@@ -14,6 +14,8 @@ export class AppComponent implements OnInit {
     { title: 'Add Child', url: '/add_child', icon: 'person' },
     { title: 'Add School', url: '/add_school', icon: 'school' },
     { title: 'Reset Password', url: '/reset_password', icon: 'lock-open' },
+    { title: 'Export Data', url: '/export', icon: 'document' },
+    { title: 'Import Data', url: '/import', icon: 'document' },
   ];
 
   constructor(private router: Router, private route: ActivatedRoute) {}
