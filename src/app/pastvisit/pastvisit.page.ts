@@ -20,7 +20,9 @@ export class PastvisitPage implements OnInit {
   ngOnInit() {
     this.route.params.subscribe((params) => {
       this.childId = params['childId']; // Retrieve the child ID from the route parameters
-      this.childVisit = this._storage.getItem(this.childId);
+      this.childVisit = this._storage
+        .getItem('childs')
+        .find((child) => child.id === this.childId);
       this.child = this.childVisit;
       console.log(this.childVisit);
       // Perform any additional logic or data retrieval based on the child ID

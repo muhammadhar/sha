@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { LocalStorageService } from '../services/localstorage.service';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing';
 
-interface Child {
+export interface Child {
   id: string;
   childName: string;
   fatherName: string;
@@ -13,18 +13,6 @@ interface Child {
   email: string;
   whatsappNumber: number;
   selectedSchool: string;
-}
-
-interface School {
-  name: string;
-  branchName: string;
-  landlineNumber: string;
-  coordinationNumber: string;
-  principalNumber: string;
-}
-
-interface DetailChild {
-  childName: string;
   earWax: string;
   vision: string;
   palmarPallor: string;
@@ -41,6 +29,33 @@ interface DetailChild {
   visits: IVisit[];
   lastFiveVisits: IVisit[];
 }
+
+interface School {
+  name: string;
+  branchName: string;
+  landlineNumber: string;
+  coordinationNumber: string;
+  principalNumber: string;
+}
+
+// interface DetailChild {
+//   childName: string;
+//   earWax: string;
+//   vision: string;
+//   palmarPallor: string;
+//   hygiene: string;
+//   carries: string;
+//   scaling: string;
+//   gaps: string;
+//   chickenpox: string;
+//   hepatitisA: string;
+//   mmr: string;
+//   meningitis: string;
+//   typhoid: string;
+//   epiStatus: string;
+//   visits: IVisit[];
+//   lastFiveVisits: IVisit[];
+// }
 interface IVisit {
   date: string;
   weight: string;
@@ -58,7 +73,6 @@ export class AdvancesearchPage implements OnInit {
   children: Child[] = [];
   schools: School[] = [];
   resultCardShow = false;
-  detailChildren: { [id: string]: DetailChild } = {};
 
   filteredChildren: Child[] = [];
 
@@ -81,14 +95,6 @@ export class AdvancesearchPage implements OnInit {
     // Retrieve child and detailChild objects from localStorage
     const storedChildren = this._storage.getItem('childs');
     this.schools = this._storage.getItem('schools');
-
-    if (storedChildren) {
-      this.children = storedChildren;
-      storedChildren.forEach(
-        (child: Child) =>
-          (this.detailChildren[child.id] = this._storage.getItem(child.id))
-      );
-    }
   }
   searchChildren() {
     // Check if more than one field in searchCriteria has a value
@@ -102,10 +108,7 @@ export class AdvancesearchPage implements OnInit {
     }
   }
   searchChildrenMultiValue() {
-    const mergedChildren = this.children.map((child) => {
-      const detailChild = this.detailChildren[child.id];
-      return { ...child, ...detailChild };
-    });
+    const mergedChildren = this._storage.getItem('childs');
 
     const searchCriteriaKeys = Object.keys(this.searchCriteria).filter(
       (key) => key !== 'branch' && this.searchCriteria[key] !== ''
@@ -208,10 +211,7 @@ export class AdvancesearchPage implements OnInit {
 
   searchChildrenSingleValue() {
     // Merge child and detailChild objects based on child's ID
-    const mergedChildren = this.children.map((child) => {
-      const detailChild = this.detailChildren[child.id];
-      return { ...child, ...detailChild };
-    });
+    const mergedChildren = this._storage.getItem('childs');
     console.log('merged children count', mergedChildren.length);
     // Perform the search based on search criteria
     this.filteredChildren = mergedChildren.filter((child) => {
@@ -396,18 +396,20 @@ export class AdvancesearchPage implements OnInit {
     if (objects.length === 0) {
       return ''; // Return an empty string if the array is empty
     }
-  
+
     const flattenObject = (obj) => {
       const flattened = {};
-  
+
       const flatten = (currentObj, propName = '') => {
         for (let key in currentObj) {
           if (currentObj.hasOwnProperty(key)) {
-            if (key === 'visits' || key === 'earWax') continue; // Ignore the 'visits' property
-            
-  
+            if (key === 'visits' || key === 'id') continue; // Ignore the 'visits' property
+            if (key === 'earWax' && Array.isArray(currentObj[key])) {
+              currentObj[key] = currentObj[key].join(',');
+            }
+
             const newKey = propName ? `${propName}.${key}` : key;
-  
+
             if (Array.isArray(currentObj[key])) {
               for (let i = 0; i < currentObj[key].length; i++) {
                 flatten(currentObj[key][i], `${newKey}[${i + 1}]`); // Start index from 1
@@ -420,25 +422,22 @@ export class AdvancesearchPage implements OnInit {
           }
         }
       };
-  
+
       flatten(obj);
-  
+
       return flattened;
     };
-  
+
     const flattenedObjects = objects.map((object) => flattenObject(object));
-  
+
     const keys = Object.keys(flattenedObjects[0]);
     const header = keys.join(',');
-  
+
     const rows = flattenedObjects.map((object) => {
       const values = keys.map((key) => object[key]);
       return values.map((value) => `"${value}"`).join(', ');
     });
-  
+
     return `${header}\n\n${rows.join('\n\n\n')}`;
   }
-  
-  
-  
 }

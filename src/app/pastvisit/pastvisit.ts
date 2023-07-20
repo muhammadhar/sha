@@ -1,5 +1,13 @@
 export interface IChildVisit {
+  id: string;
   childName: string;
+  fatherName: string;
+  motherName: string;
+  gender: string;
+  dateOfBirth: string;
+  email: string;
+  whatsappNumber: number;
+  selectedSchool: string;
   earWax: string;
   vision: string;
   palmarPallor: string;

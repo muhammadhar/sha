@@ -19,22 +19,12 @@ import { enGB } from 'date-fns/locale';
 import { Platform } from '@ionic/angular';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { Child as IChild } from '../advancesearch/advancesearch.page';
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 interface Ischool {
   name: string;
-}
-export interface IChild {
-  id: string;
-  childName: string;
-  fatherName: string;
-  motherName: string;
-  gender : string;
-  dateOfBirth: string;
-  email: string;
-  whatsappNumber: number;
-  selectedSchool: string;
 }
 @Component({
   selector: 'app-search',
@@ -191,16 +181,48 @@ export class SearchPage implements OnInit {
     this.createAndWriteCSV(selectedChilds);
   }
 
-  convertArrayToCSV(objects: IChild[]): string {
+  convertArrayToCSV(objects: any[]): string {
     if (objects.length === 0) {
       return ''; // Return an empty string if the array is empty
     }
 
-    const keys = Object.keys(objects[0]);
+    const flattenObject = (obj) => {
+      const flattened = {};
+
+      const flatten = (currentObj, propName = '') => {
+        for (let key in currentObj) {
+          if (currentObj.hasOwnProperty(key)) {
+            if (key === 'visits' || key === 'id') continue; // Ignore the 'visits' property
+            if (key === 'earWax' && Array.isArray(currentObj[key])) {
+              currentObj[key] = currentObj[key].join(',');
+            }
+
+            const newKey = propName ? `${propName}.${key}` : key;
+
+            if (Array.isArray(currentObj[key])) {
+              for (let i = 0; i < currentObj[key].length; i++) {
+                flatten(currentObj[key][i], `${newKey}[${i + 1}]`); // Start index from 1
+              }
+            } else if (typeof currentObj[key] === 'object') {
+              flatten(currentObj[key], newKey);
+            } else {
+              flattened[newKey] = currentObj[key];
+            }
+          }
+        }
+      };
+
+      flatten(obj);
+
+      return flattened;
+    };
+
+    const flattenedObjects = objects.map((object) => flattenObject(object));
+
+    const keys = Object.keys(flattenedObjects[0]);
     const header = keys.join(',');
 
-    const rows = objects.map((object) => {
-      //@ts-ignore
+    const rows = flattenedObjects.map((object) => {
       const values = keys.map((key) => object[key]);
       return values.map((value) => `"${value}"`).join(', ');
     });
@@ -214,7 +236,7 @@ export class SearchPage implements OnInit {
   }
 
   async createPdf(childId: string) {
-    const childVisit: IChildVisit = this._storage.getItem(childId);
+    // const childVisit: IChildVisit = this._storage.getItem(childId);
     const childArray: IChild[] = this._storage.getItem('childs');
     const childDetails: IChild = childArray.find(
       (child) => child.id === childId
@@ -228,8 +250,8 @@ export class SearchPage implements OnInit {
     // }
     let firstEntryDate = '';
     let UpdatedVisitsArray = [];
-    if (childVisit.lastFiveVisits.length > 1) {
-      UpdatedVisitsArray = childVisit.lastFiveVisits.sort((a, b) => {
+    if (childDetails.lastFiveVisits.length > 1) {
+      UpdatedVisitsArray = childDetails.lastFiveVisits.sort((a, b) => {
         //@ts-ignore
         const dateA = new Date(a.date);
         //@ts-ignore
@@ -238,19 +260,22 @@ export class SearchPage implements OnInit {
         return dateB - dateA;
       });
     } else {
-      UpdatedVisitsArray = childVisit.lastFiveVisits;
+      UpdatedVisitsArray = childDetails.lastFiveVisits;
     }
     const VisitsArray = UpdatedVisitsArray.map((visit: IVisit, index) => {
       if (index === 0) {
         firstEntryDate = visit.date;
       }
       return [
-        visit.date || '',
-        visit.weight || '',
-        visit.height || '',
-        visit.bmi || '',
-        visit.growthVelocity || '',
-        visit.muac || '',
+        { text: visit.date || '' },
+        { text: visit.weight || '' },
+        { text: visit.height || '' },
+        { text: visit.bmi || '' },
+        {
+          text: visit.growthVelocity || '',
+          bold: visit.growthVelocity.includes('R') ? true : false,
+        },
+        { text: visit.muac || '' },
       ];
     });
     console.log('visit array', VisitsArray);
@@ -371,9 +396,9 @@ export class SearchPage implements OnInit {
                 { text: 'Palmar Pallor', bold: true },
               ],
               [
-                `${childVisit.earWax}`,
-                `${childVisit.vision}`,
-                `${childVisit.palmarPallor}`,
+                `${childDetails.earWax}`,
+                `${childDetails.vision}`,
+                `${childDetails.palmarPallor}`,
               ],
             ],
           },
@@ -397,10 +422,10 @@ export class SearchPage implements OnInit {
                 { text: 'Scaling', bold: true },
               ],
               [
-                `${childVisit.hygiene}`,
-                `${childVisit.carries}`,
-                `${childVisit.gaps}`,
-                `${childVisit.scaling}`,
+                `${childDetails.hygiene}`,
+                `${childDetails.carries}`,
+                `${childDetails.gaps}`,
+                `${childDetails.scaling}`,
               ],
             ],
           },
@@ -415,12 +440,12 @@ export class SearchPage implements OnInit {
                 { text: 'Vaccine', bold: true },
                 { text: 'Status', bold: true },
               ],
-              ['EPI', `${childVisit.epiStatus}`],
-              ['Typhoid', `${childVisit.typhoid}`],
-              ['Chickenpox', `${childVisit.chickenpox}`],
-              ['Hepatitis A', `${childVisit.hepatitisA}`],
-              ['MMR', `${childVisit.mmr}`],
-              ['Meningitis', `${childVisit.meningitis}`],
+              ['EPI', `${childDetails.epiStatus}`],
+              ['Typhoid', `${childDetails.typhoid}`],
+              ['Chickenpox', `${childDetails.chickenpox}`],
+              ['Hepatitis A', `${childDetails.hepatitisA}`],
+              ['MMR', `${childDetails.mmr}`],
+              ['Meningitis', `${childDetails.meningitis}`],
             ],
           },
           margin: [0, 0, 0, 10],
@@ -429,7 +454,7 @@ export class SearchPage implements OnInit {
           style: 'childTable',
           table: {
             widths: ['*'],
-            body: [['comments:'], ['  '], ['  ']],
+            body: [['comments:'], ['  '], ['  '], ['  ']],
           },
           margin: [0, 0, 0, 10],
         },
@@ -549,7 +574,8 @@ export class SearchPage implements OnInit {
         const pdfAsDataUrl = await this.getPdfAsDataUrl(pdfDocGenerator);
 
         // Generate a unique file name
-        const fileName = Date.now().toString() + ' myFile.pdf';
+        const fileName =
+          Date.now().toString() + ' ' + childDetails.childName + '.pdf';
 
         // Get the device's data directory
         const dataDirectory = this.file.dataDirectory;

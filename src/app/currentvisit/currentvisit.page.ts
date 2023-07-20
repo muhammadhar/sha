@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LocalStorageService } from '../services/localstorage.service';
-import { IChild } from '../search/search.page';
+import { Child as IChild } from '../advancesearch/advancesearch.page';
 import { ToastService } from '../services/ToastService.service';
 import { IChildVisit, IVisit } from '../pastvisit/pastvisit';
 import { IonInput, IonSelect, Platform } from '@ionic/angular';
@@ -113,19 +113,20 @@ export class CurrentvisitPage implements OnInit {
 
   ngOnInit(): void {
     this.childId = this.getChildIdFromParam(); // Retrieve child ID from parameter
-    const childData = this.getChildDataFromLocalStorage(this.childId); // Retrieve child data from local storage
-    if (childData) {
-      this.childName = childData.childName; // Get child's name
-    }
   }
 
   onSubmit() {
     // console.log('new data ', newData);
-    const dataArray: IChildVisit = this.getArrayFromLocalStorage(this.childId);
-    if (Object.keys(dataArray).length > 0) {
-      this.visits = dataArray.visits;
-      this.lastFiveVisits = dataArray.lastFiveVisits;
-    }
+    const dataArray: IChildVisit = this.localStorageService
+      .getItem('childs')
+      .find((child) => child.id === this.childId);
+
+    Object.keys(dataArray).forEach((key) => {
+      if (key === 'visits' && dataArray[key].length > 0) {
+        this.visits = dataArray.visits;
+        this.lastFiveVisits = dataArray.lastFiveVisits;
+      }
+    });
     console.log(dataArray);
     this.visits.push({
       date: this.getCurrentDate(),
@@ -149,8 +150,7 @@ export class CurrentvisitPage implements OnInit {
       this.lastFiveVisits.shift(); // Remove the first entry (oldest visit)
     }
 
-    const newData: IChildVisit = {
-      childName: this.childName,
+    const newData = {
       earWax: this.earWax,
       vision: this.vision,
       palmarPallor: this.palmarPallor,
@@ -167,7 +167,23 @@ export class CurrentvisitPage implements OnInit {
       visits: this.visits,
       lastFiveVisits: this.lastFiveVisits,
     };
-    this.saveArrayToLocalStorage(this.childId, newData);
+
+    // this.saveArrayToLocalStorage(this.childId, newData);
+    const extendedChild = this.localStorageService
+      .getItem('childs')
+      .find((child) => child.id === this.childId);
+    const updatedExtendedChild = { ...extendedChild, ...newData };
+    let allChilds = this.localStorageService.getItem('childs');
+    if (allChilds) {
+      allChilds = allChilds.map((child) => {
+        if (child.id === this.childId) {
+          return updatedExtendedChild;
+        }
+        return child;
+      });
+    }
+    this.localStorageService.setItem('childs', allChilds);
+
     this._toast.create('new visit added successfully', 'success', false, 2000);
     this.visitForm.reset();
     this.calculateGrowthVelocity();
@@ -180,23 +196,6 @@ export class CurrentvisitPage implements OnInit {
   private getChildIdFromParam(): string {
     const childId = this.route.snapshot.paramMap.get('childId');
     return childId ? childId : '';
-  }
-
-  private getChildDataFromLocalStorage(childId: string): IChild | null {
-    const childs: IChild[] = this.localStorageService.getItem('childs');
-    const filteredChild: IChild | undefined = childs.find(
-      (child: IChild) => child.id === childId
-    );
-    return filteredChild || null;
-  }
-
-  private getArrayFromLocalStorage(childId: string): IChildVisit {
-    const existingArray = this.localStorageService.getItem(childId);
-    return existingArray ? existingArray : {};
-  }
-
-  private saveArrayToLocalStorage(childId: string, dataArray: any): void {
-    this.localStorageService.setItem(childId, dataArray);
   }
 
   getCurrentDate(): string {
@@ -232,9 +231,11 @@ export class CurrentvisitPage implements OnInit {
   }
 
   calculateGrowthVelocity = () => {
-    const child = this.localStorageService.getItem(this.childId);
-    const childDetails = this.localStorageService.getItem('childs').find(ch => ch.id === this.childId)
-    let lastFiveVisits = child?.lastFiveVisits;
+    const childDetails = this.localStorageService
+      .getItem('childs')
+      .find((ch) => ch.id === this.childId);
+
+    let lastFiveVisits = childDetails?.lastFiveVisits;
     // if (lastFiveVisits) {
     //   if (lastFiveVisits.length >= 1) {
     //     //   // Sort the visits by date in ascending order
@@ -353,7 +354,7 @@ export class CurrentvisitPage implements OnInit {
               `Warning: Growth velocity ${growthVelocity.toFixed(
                 2
               )} cm/year is not within the expected range of ${growthVelocityRange} cm/year for a child of age ${ageInYears} years and gender ${
-                child.gender
+                childDetails.gender
               }.`
             );
           }
@@ -363,8 +364,17 @@ export class CurrentvisitPage implements OnInit {
 
     console.log('Updated last five visits:', lastFiveVisits);
 
-    child.lastFiveVisits = lastFiveVisits;
-    this.localStorageService.setItem(this.childId, child);
+    childDetails.lastFiveVisits = lastFiveVisits;
+    let allChilds = this.localStorageService.getItem('childs');
+    if (allChilds) {
+      allChilds = allChilds.map((child) => {
+        if (child.id === childDetails.id) {
+          return childDetails;
+        }
+        return child;
+      });
+    }
+    this.localStorageService.setItem('childs', allChilds);
   };
 
   getMonthDifference(startDate: Date, endDate: Date): number {
@@ -380,7 +390,7 @@ export class CurrentvisitPage implements OnInit {
   }
 
   async createPdf(childId: string) {
-    const childVisit: IChildVisit = this.localStorageService.getItem(childId);
+    // const childVisit: IChildVisit = this.localStorageService.getItem(childId);
     const childArray: IChild[] = this.localStorageService.getItem('childs');
     const childDetails: IChild = childArray.find(
       (child) => child.id === childId
@@ -394,8 +404,8 @@ export class CurrentvisitPage implements OnInit {
     // }
     let firstEntryDate = '';
     let UpdatedVisitsArray = [];
-    if (childVisit.lastFiveVisits.length > 1) {
-      UpdatedVisitsArray = childVisit.lastFiveVisits.sort((a, b) => {
+    if (childDetails.lastFiveVisits.length > 1) {
+      UpdatedVisitsArray = childDetails.lastFiveVisits.sort((a, b) => {
         //@ts-ignore
         const dateA = new Date(a.date);
         //@ts-ignore
@@ -404,7 +414,7 @@ export class CurrentvisitPage implements OnInit {
         return dateB - dateA;
       });
     } else {
-      UpdatedVisitsArray = childVisit.lastFiveVisits;
+      UpdatedVisitsArray = childDetails.lastFiveVisits;
     }
     const VisitsArray = UpdatedVisitsArray.map((visit: IVisit, index) => {
       if (index === 0) {
@@ -538,9 +548,9 @@ export class CurrentvisitPage implements OnInit {
                 { text: 'Palmar Pallor', bold: true },
               ],
               [
-                `${childVisit.earWax}`,
-                `${childVisit.vision}`,
-                `${childVisit.palmarPallor}`,
+                `${childDetails.earWax}`,
+                `${childDetails.vision}`,
+                `${childDetails.palmarPallor}`,
               ],
             ],
           },
@@ -564,10 +574,10 @@ export class CurrentvisitPage implements OnInit {
                 { text: 'Scaling', bold: true },
               ],
               [
-                `${childVisit.hygiene}`,
-                `${childVisit.carries}`,
-                `${childVisit.gaps}`,
-                `${childVisit.scaling}`,
+                `${childDetails.hygiene}`,
+                `${childDetails.carries}`,
+                `${childDetails.gaps}`,
+                `${childDetails.scaling}`,
               ],
             ],
           },
@@ -582,12 +592,12 @@ export class CurrentvisitPage implements OnInit {
                 { text: 'Vaccine', bold: true },
                 { text: 'Status', bold: true },
               ],
-              ['EPI', `${childVisit.epiStatus}`],
-              ['Typhoid', `${childVisit.typhoid}`],
-              ['Chickenpox', `${childVisit.chickenpox}`],
-              ['Hepatitis A', `${childVisit.hepatitisA}`],
-              ['MMR', `${childVisit.mmr}`],
-              ['Meningitis', `${childVisit.meningitis}`],
+              ['EPI', `${childDetails.epiStatus}`],
+              ['Typhoid', `${childDetails.typhoid}`],
+              ['Chickenpox', `${childDetails.chickenpox}`],
+              ['Hepatitis A', `${childDetails.hepatitisA}`],
+              ['MMR', `${childDetails.mmr}`],
+              ['Meningitis', `${childDetails.meningitis}`],
             ],
           },
           margin: [0, 0, 0, 10],
@@ -596,7 +606,7 @@ export class CurrentvisitPage implements OnInit {
           style: 'childTable',
           table: {
             widths: ['*'],
-            body: [['comments:'], ['  '], ['  ']],
+            body: [['comments:'], ['  '], ['  '], ['  ']],
           },
           margin: [0, 0, 0, 10],
         },
@@ -716,7 +726,7 @@ export class CurrentvisitPage implements OnInit {
         const pdfAsDataUrl = await this.getPdfAsDataUrl(pdfDocGenerator);
 
         // Generate a unique file name
-        const fileName = Date.now().toString() + ' myFile.pdf';
+        const fileName = Date.now().toString() + " " + childDetails.childName + '.pdf';
 
         // Get the device's data directory
         const dataDirectory = this.file.dataDirectory;
@@ -741,7 +751,7 @@ export class CurrentvisitPage implements OnInit {
       }
       // });
     } else {
-      this.pdfObject.download(`${childDetails.childName}.pdf`);
+      this.pdfObject.download(`${Date.now().toString() +" "+childDetails.childName}.pdf`);
     }
   }
 
