@@ -18,7 +18,7 @@ jobs:
         run: npm install
         
       - name: Build
-        run: npm run build:prod
+        run: ng build
 
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -26,4 +26,4 @@ jobs:
           server: sha.ewarenet.com
           username: up@sha.ewarenet.com	
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: dist/
+          local-dir: www/
