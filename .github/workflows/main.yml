@@ -8,11 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@master
+        uses: actions/checkout@master 
+        
+      - name: Install Angular
+        run: npm install -g @angular/cli@latest
 
       - name: Install Ionic
         run: npm install -g @ionic/cli
-
         
       - name: Install Dependencies
         run: npm install
