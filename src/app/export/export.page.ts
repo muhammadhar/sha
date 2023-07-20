@@ -21,7 +21,9 @@ export class ExportPage implements OnInit {
       childs: JSON.parse(childsData),
     };
 
+    // console.log('data object ', dataObject);
     const jsonData = JSON.stringify(dataObject);
+    // console.log('stringified jsondata', jsonData);
     const fileName = 'data_export.json';
 
     if (this.platform.is('cordova')) {

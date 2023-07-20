@@ -2,6 +2,7 @@ import { File } from '@awesome-cordova-plugins/file/ngx';
 import { Component, OnInit } from '@angular/core';
 import { LocalStorageService } from '../services/localstorage.service';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing';
+import { Platform } from '@ionic/angular';
 
 export interface Child {
   id: string;
@@ -90,7 +91,7 @@ export class AdvancesearchPage implements OnInit {
     typhoidMissed: '',
     epiStatusMissed: '',
   };
-  constructor(private _storage: LocalStorageService, private file: File) {}
+  constructor(private _storage: LocalStorageService, private file: File, private plt : Platform) {}
   ngOnInit() {
     // Retrieve child and detailChild objects from localStorage
     const storedChildren = this._storage.getItem('childs');
@@ -369,27 +370,45 @@ export class AdvancesearchPage implements OnInit {
   createAndWriteCSV() {
     const fileName = Date.now().toString() + 'data.csv';
     const csvString = this.convertArrayToCSV(this.filteredChildren);
-
-    const dataDirectory = this.file.dataDirectory;
-
-    this.file
-      .writeFile(dataDirectory, fileName, csvString, { replace: true })
-      .then(() => {
-        const filePath = dataDirectory + fileName;
-        const message = 'Childs ' + ' CSV file downloaded successfully.';
-
-        // Share the CSV file using SocialSharing
-        SocialSharing.share(undefined, undefined, filePath, message)
-          .then(() => {
-            console.log('CSV file shared successfully.');
-          })
-          .catch((error: any) => {
-            console.error('Error sharing CSV file:', error);
-          });
-      })
-      .catch((error: any) => {
-        console.error('Error creating and writing CSV file:', error);
-      });
+  
+    if (this.plt.is('cordova')) {
+      // Save the CSV file on the device using @awesome-cordova-plugins/file
+      const dataDirectory = this.file.dataDirectory;
+      this.file
+        .writeFile(dataDirectory, fileName, csvString, { replace: true })
+        .then(() => {
+          const filePath = dataDirectory + fileName;
+          const message = 'Childs ' + ' CSV file downloaded successfully.';
+  
+          // Share the CSV file using SocialSharing
+          SocialSharing.share(undefined, undefined, filePath, message)
+            .then(() => {
+              console.log('CSV file shared successfully.');
+            })
+            .catch((error: any) => {
+              console.error('Error sharing CSV file:', error);
+            });
+        })
+        .catch((error: any) => {
+          console.error('Error creating and writing CSV file:', error);
+        });
+    } else {
+      // For non-Cordova platforms (e.g., web), trigger the download
+      this.downloadCSV(csvString, fileName);
+    }
+  }
+  
+  // Function to trigger the CSV download for non-Cordova platforms (e.g., web)
+  private downloadCSV(csvString: string, fileName: string) {
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+  
+    // Optionally, you can revoke the object URL after the download link is clicked.
+    URL.revokeObjectURL(url);
   }
 
   convertArrayToCSV(objects: any[]): string {

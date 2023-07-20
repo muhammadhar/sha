@@ -349,7 +349,7 @@ export class CurrentvisitPage implements OnInit {
             growthVelocity > growthVelocityRange * 1.1
           ) {
             lastFiveVisits[i].growthVelocity =
-              growthVelocity.toFixed(2) + ' R:' + growthVelocityRange;
+              growthVelocity.toFixed(2) + '(' + growthVelocityRange + ')';
             console.log(
               `Warning: Growth velocity ${growthVelocity.toFixed(
                 2
@@ -427,7 +427,7 @@ export class CurrentvisitPage implements OnInit {
         { text: visit.bmi || '' },
         {
           text: visit.growthVelocity || '',
-          bold: visit.growthVelocity.includes('R') ? true : false,
+          bold: visit.growthVelocity.includes('(') ? true : false,
         },
         { text: visit.muac || '' },
       ];
@@ -511,7 +511,7 @@ export class CurrentvisitPage implements OnInit {
             body: [
               [
                 `${childDetails.childName} ${
-                  childDetails.gender.includes('male') ? '  S/O  ' : '  D/O  '
+                  childDetails.gender === 'male' ? '  S/O  ' : '  D/O  '
                 } ${childDetails.fatherName}`,
                 `DOB: ${this.formateDate(childDetails.dateOfBirth)}`,
               ],
@@ -526,11 +526,11 @@ export class CurrentvisitPage implements OnInit {
             body: [
               [
                 { text: 'Date', bold: true },
-                { text: 'Weight', bold: true },
-                { text: 'Height', bold: true },
-                { text: 'BMI', bold: true },
-                { text: 'Growth Velocity', bold: true },
-                { text: 'MUAC', bold: true },
+                { text: 'Weight (kg)', bold: true },
+                { text: 'Height (cm)', bold: true },
+                { text: 'BMI (KG/m2)', bold: true },
+                { text: 'Growth Velocity (cm/year)', bold: true },
+                { text: 'MUAC (cm)', bold: true },
               ],
               ...VisitsArray,
             ],
@@ -726,7 +726,8 @@ export class CurrentvisitPage implements OnInit {
         const pdfAsDataUrl = await this.getPdfAsDataUrl(pdfDocGenerator);
 
         // Generate a unique file name
-        const fileName = Date.now().toString() + " " + childDetails.childName + '.pdf';
+        const fileName =
+          Date.now().toString() + ' ' + childDetails.childName + '.pdf';
 
         // Get the device's data directory
         const dataDirectory = this.file.dataDirectory;
@@ -751,7 +752,9 @@ export class CurrentvisitPage implements OnInit {
       }
       // });
     } else {
-      this.pdfObject.download(`${Date.now().toString() +" "+childDetails.childName}.pdf`);
+      this.pdfObject.download(
+        `${Date.now().toString() + ' ' + childDetails.childName}.pdf`
+      );
     }
   }
 
