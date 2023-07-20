@@ -151,26 +151,44 @@ export class SearchPage implements OnInit {
     const fileName = Date.now().toString() + 'data.csv';
     const csvString = this.convertArrayToCSV(child);
 
-    const dataDirectory = this.file.dataDirectory;
+    if (this.plt.is('cordova')) {
+      // Save the CSV file on the device using @awesome-cordova-plugins/file
+      const dataDirectory = this.file.dataDirectory;
+      this.file
+        .writeFile(dataDirectory, fileName, csvString, { replace: true })
+        .then(() => {
+          const filePath = dataDirectory + fileName;
+          const message = 'Childs ' + ' CSV file downloaded successfully.';
 
-    this.file
-      .writeFile(dataDirectory, fileName, csvString, { replace: true })
-      .then(() => {
-        const filePath = dataDirectory + fileName;
-        const message = 'Childs ' + ' CSV file downloaded successfully.';
+          // Share the CSV file using SocialSharing
+          SocialSharing.share(undefined, undefined, filePath, message)
+            .then(() => {
+              console.log('CSV file shared successfully.');
+            })
+            .catch((error: any) => {
+              console.error('Error sharing CSV file:', error);
+            });
+        })
+        .catch((error: any) => {
+          console.error('Error creating and writing CSV file:', error);
+        });
+    } else {
+      // For non-Cordova platforms (e.g., web), trigger the download
+      this.downloadCSV(csvString, fileName);
+    }
+  }
 
-        // Share the CSV file using SocialSharing
-        SocialSharing.share(undefined, undefined, filePath, message)
-          .then(() => {
-            console.log('CSV file shared successfully.');
-          })
-          .catch((error: any) => {
-            console.error('Error sharing CSV file:', error);
-          });
-      })
-      .catch((error: any) => {
-        console.error('Error creating and writing CSV file:', error);
-      });
+  // Function to trigger the CSV download for non-Cordova platforms (e.g., web)
+  private downloadCSV(csvString: string, fileName: string) {
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+
+    // Optionally, you can revoke the object URL after the download link is clicked.
+    URL.revokeObjectURL(url);
   }
 
   showNoChildMsg(): boolean {
@@ -267,15 +285,15 @@ export class SearchPage implements OnInit {
         firstEntryDate = visit.date;
       }
       return [
-        { text: visit.date || '' },
-        { text: visit.weight || '' },
-        { text: visit.height || '' },
-        { text: visit.bmi || '' },
+        { text: visit.date || '', alignment: 'center' },
+        { text: visit.weight || '', alignment: 'center' },
+        { text: visit.height || '', alignment: 'center' },
+        { text: visit.bmi || '', alignment: 'center' },
         {
           text: visit.growthVelocity || '',
           bold: visit.growthVelocity.includes('(') ? true : false,
         },
-        { text: visit.muac || '' },
+        { text: visit.muac || '', alignment: 'center' },
       ];
     });
     console.log('visit array', VisitsArray);
@@ -371,13 +389,81 @@ export class SearchPage implements OnInit {
             widths: ['*', '*', '*', '*', 'auto', '*'],
             body: [
               [
-                { text: 'Date', bold: true },
-                { text: 'Weight (kg)', bold: true },
-                { text: 'Height (cm)', bold: true },
-                { text: 'BMI (KG/m2)', bold: true },
-                { text: 'Growth Velocity (cm/year)', bold: true },
-                { text: 'MUAC (cm)', bold: true },
+                {
+                  text: 'Date',
+                  bold: true,
+                  alignment: 'center',
+                  border: [true, true, true, false],
+                },
+                {
+                  text: 'Weight',
+                  bold: true,
+                  alignment: 'center',
+                  border: [false, true, true, false],
+                },
+                {
+                  text: 'Height',
+                  bold: true,
+                  alignment: 'center',
+                  border: [false, true, true, false],
+                },
+                {
+                  text: 'BMI',
+                  bold: true,
+                  alignment: 'center',
+                  border: [false, true, true, false],
+                },
+                {
+                  text: 'Growth Velocity',
+                  bold: true,
+                  border: [false, true, true, false],
+                },
+                {
+                  text: 'MUAC',
+                  bold: true,
+                  alignment: 'center',
+                  border: [false, true, true, false],
+                },
               ],
+              [
+                {
+                  text: '',
+                  bold: true,
+                  alignment: 'center',
+                  border: [true, false, true, false],
+                },
+                {
+                  text: '(kg)',
+                  bold: true,
+                  alignment: 'center',
+                  border: [false, false, true, false],
+                },
+                {
+                  text: '(cm)',
+                  bold: true,
+                  alignment: 'center',
+                  border: [false, false, true, false],
+                },
+                {
+                  text: '(KG/m2)',
+                  bold: true,
+                  alignment: 'center',
+                  border: [false, false, true, false],
+                },
+                {
+                  text: '(cm/year)',
+                  bold: true,
+                  alignment: 'center',
+                  border: [false, false, true, false],
+                },
+                {
+                  text: '(cm)',
+                  bold: true,
+                  alignment: 'center',
+                  border: [false, false, true, false],
+                },
+              ],
+
               ...VisitsArray,
             ],
           },
@@ -389,14 +475,14 @@ export class SearchPage implements OnInit {
             widths: ['*', '*', '*'],
             body: [
               [
-                { text: 'Ear Wax', bold: true },
-                { text: 'Vision', bold: true },
-                { text: 'Palmar Pallor', bold: true },
+                { text: 'Ear Wax', bold: true, alignment: 'center' },
+                { text: 'Vision', bold: true, alignment: 'center' },
+                { text: 'Palmar Pallor', bold: true, alignment: 'center' },
               ],
               [
-                `${childDetails.earWax}`,
-                `${childDetails.vision}`,
-                `${childDetails.palmarPallor}`,
+                { text: `${childDetails.earWax}`, alignment: 'center' },
+                { text: `${childDetails.vision}`, alignment: 'center' },
+                { text: `${childDetails.palmarPallor}`, alignment: 'center' },
               ],
             ],
           },
@@ -414,16 +500,16 @@ export class SearchPage implements OnInit {
                 '',
               ],
               [
-                { text: 'Hygiene', bold: true },
-                { text: 'Carries', bold: true },
-                { text: 'Gaps', bold: true },
-                { text: 'Scaling', bold: true },
+                { text: 'Hygiene', bold: true, alignment: 'center' },
+                { text: 'Carries', bold: true, alignment: 'center' },
+                { text: 'Gaps', bold: true, alignment: 'center' },
+                { text: 'Scaling', bold: true, alignment: 'center' },
               ],
               [
-                `${childDetails.hygiene}`,
-                `${childDetails.carries}`,
-                `${childDetails.gaps}`,
-                `${childDetails.scaling}`,
+                { text: `${childDetails.hygiene}`, alignment: 'center' },
+                { text: `${childDetails.carries}`, alignment: 'center' },
+                { text: `${childDetails.gaps}`, alignment: 'center' },
+                { text: `${childDetails.scaling}`, alignment: 'center' },
               ],
             ],
           },
@@ -435,8 +521,8 @@ export class SearchPage implements OnInit {
             widths: ['*', '*'],
             body: [
               [
-                { text: 'Vaccine', bold: true },
-                { text: 'Status', bold: true },
+                { text: 'Vaccine', bold: true, alignment: 'center' },
+                { text: 'Status', bold: true, alignment: 'center' },
               ],
               ['EPI', `${childDetails.epiStatus}`],
               ['Typhoid', `${childDetails.typhoid}`],
