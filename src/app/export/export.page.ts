@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { File } from '@awesome-cordova-plugins/file/ngx';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing';
 import { Platform } from '@ionic/angular';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-export',
@@ -9,10 +10,15 @@ import { Platform } from '@ionic/angular';
   styleUrls: ['./export.page.scss'],
 })
 export class ExportPage implements OnInit {
-  constructor(private platform: Platform, private file: File) {}
+  constructor(
+    private platform: Platform,
+    private file: File,
+    private router: Router
+  ) {}
 
   ngOnInit() {}
-  exportData() {
+
+  async exportData() {
     const schoolsData = localStorage.getItem('schools');
     const childsData = localStorage.getItem('childs');
 
@@ -21,43 +27,58 @@ export class ExportPage implements OnInit {
       childs: JSON.parse(childsData),
     };
 
-    // console.log('data object ', dataObject);
+    // Loop through the childs array and merge with local storage data if available
+    for (const child of dataObject.childs) {
+      const childId = child.id;
+      const storedChildData = localStorage.getItem(childId);
+      if (storedChildData) {
+        Object.assign(child, JSON.parse(storedChildData));
+      }
+    }
+
     const jsonData = JSON.stringify(dataObject);
-    // console.log('stringified jsondata', jsonData);
     const fileName = 'data_export.json';
 
     if (this.platform.is('cordova')) {
       // Save the JSON file on the device using @awesome-cordova-plugins/file
-      this.saveFileToDevice(jsonData, fileName);
+      await this.saveFileToDevice(jsonData, fileName);
     } else {
       // For non-Cordova platforms (e.g., web), trigger the download
       this.downloadFile(jsonData, fileName);
     }
+
+    // // Display a message indicating data has been exported
+    // alert('Data exported successfully!');
+
+    // Navigate to /members/dashboard
+    this.router.navigate(['/members/dashboard']);
   }
 
   // Function to save the JSON file on the device using @awesome-cordova-plugins/file
-  private saveFileToDevice(jsonData: string, fileName: string) {
+  private async saveFileToDevice(jsonData: string, fileName: string) {
     const directory = this.file.dataDirectory; // Use the dataDirectory from @awesome-cordova-plugins/file
-    this.file
-      .writeFile(directory, fileName, jsonData, { replace: true })
-      .then(() => {
-        const filePath = directory + fileName;
-        SocialSharing.share(
-          undefined,
-          undefined,
-          filePath,
-          'json file downloaded successfully'
-        )
-          .then(() => {
-            console.log('json file downloaded successfully".');
-          })
-          .catch((error: any) => {
-            console.error('Error sharing Json file:', error);
-          });
-      })
-      .catch((error) => {
-        console.error('Error saving file:', error);
+
+    try {
+      await this.file.writeFile(directory, fileName, jsonData, {
+        replace: true,
       });
+
+      const filePath = directory + fileName;
+      SocialSharing.share(
+        undefined,
+        undefined,
+        filePath,
+        'json file downloaded successfully'
+      )
+        .then(() => {
+          console.log('json file downloaded successfully.');
+        })
+        .catch((error: any) => {
+          console.error('Error sharing Json file:', error);
+        });
+    } catch (error) {
+      console.error('Error saving file:', error);
+    }
   }
 
   // Function to trigger the download for non-Cordova platforms (e.g., web)

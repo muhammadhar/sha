@@ -16,15 +16,14 @@
     <ion-grid>
       <ion-row>
         <ion-col>
-          <form (ngSubmit)="onSubmit()">
             <ion-input
               type="file"
-              (change)="onFileSelected($event)"
+              id="fileInput"
+              (change)="onFileChange($event)" 
+              accept=".json"
             ></ion-input>
-            <ion-button type="submit" [disabled]="!fileSelected"
-              >Import</ion-button
-            >
-          </form>
+            <ion-button (click)="onSubmit()" [disabled]="!fileSelected"
+              >Import</ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
