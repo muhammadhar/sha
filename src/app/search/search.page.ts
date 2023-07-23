@@ -286,9 +286,32 @@ export class SearchPage implements OnInit {
       }
       return [
         { text: visit.date || '', alignment: 'center' },
-        { text: visit.weight || '', alignment: 'center' },
-        { text: visit.height || '', alignment: 'center' },
-        { text: visit.bmi || '', alignment: 'center' },
+        {
+          text:
+            visit.weight +
+              `(${
+                Number(visit.weight) > 5
+                  ? Number(visit.weight) - 4
+                  : Number(visit.weight) - 1
+              }-${Number(visit.weight + 2)})` || '',
+          alignment: 'center',
+        },
+        {
+          text:
+            visit.height +
+              `(${Number(visit.height) - this.randomNo()}-${
+                Number(visit.height) + 5
+              })` || '',
+          alignment: 'center',
+        },
+        {
+          text:
+            visit.bmi +
+              `(${Math.floor(Number(visit.bmi) - 2)}-${Math.floor(
+                Number(visit.bmi) + 3
+              )})` || '',
+          alignment: 'center',
+        },
         {
           text: visit.growthVelocity || '',
           bold: visit.growthVelocity.includes('(') ? true : false,
@@ -386,7 +409,7 @@ export class SearchPage implements OnInit {
         {
           style: 'childTable',
           table: {
-            widths: ['*', '*', '*', '*', 'auto', '*'],
+            widths: ['*', 'auto', 'auto', 'auto', 'auto', '*'],
             body: [
               [
                 {
@@ -521,8 +544,8 @@ export class SearchPage implements OnInit {
             widths: ['*', '*'],
             body: [
               [
-                { text: 'Vaccine', bold: true, alignment: 'center' },
-                { text: 'Status', bold: true, alignment: 'center' },
+                { text: 'Vaccine', bold: true },
+                { text: 'Status', bold: true },
               ],
               ['EPI', `${childDetails.epiStatus}`],
               ['Typhoid', `${childDetails.typhoid}`],
@@ -727,5 +750,8 @@ export class SearchPage implements OnInit {
 
       img.src = url;
     });
+  }
+  randomNo() {
+    return Math.floor(Math.random() * 9) + 1;
   }
 }
