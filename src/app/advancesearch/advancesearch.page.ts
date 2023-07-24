@@ -33,10 +33,8 @@ export interface Child {
 
 interface School {
   name: string;
-  branchName: string;
-  landlineNumber: string;
-  coordinationNumber: string;
-  principalNumber: string;
+  area: string;
+  contact: string;
 }
 
 // interface DetailChild {
@@ -197,7 +195,7 @@ export class AdvancesearchPage implements OnInit {
 
     if (this.searchCriteria.branch !== '') {
       const filteredSchools = this.schools.filter(
-        (school) => this.searchCriteria.branch === school.branchName
+        (school) => this.searchCriteria.branch === school.area
       );
 
       this.filteredChildren = this.filteredChildren.filter((child) => {
@@ -312,7 +310,7 @@ export class AdvancesearchPage implements OnInit {
 
     if (this.searchCriteria.branch.length > 0) {
       const filteredSchools = this.schools.filter(
-        (school) => this.searchCriteria.branch === school.branchName
+        (school) => this.searchCriteria.branch === school.area
       );
       for (let school of filteredSchools) {
         for (let child of mergedChildren) {
