@@ -115,7 +115,11 @@
           <ion-button expand="full" type="submit">Search</ion-button>
         </form>
 
-
+        <ion-card *ngIf="noChildFoundCard">
+          <ion-card-content class="ion-text-center">
+            <ion-card-title>No children found.</ion-card-title>
+          </ion-card-content>
+        </ion-card>
       </ion-card-content>
     </ion-card>
   </div>
@@ -141,14 +145,6 @@
       </ion-card-content>
     </ion-card>
   </ng-container>
-
-  <ng-template *ngIf="resultCardShow">
-    <ion-card>
-      <ion-card-content class="ion-text-center">
-        <ion-card-title>No children found.</ion-card-title>
-      </ion-card-content>
-    </ion-card>
-  </ng-template>
 
 
 </ion-content>

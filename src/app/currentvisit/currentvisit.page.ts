@@ -349,7 +349,7 @@ export class CurrentvisitPage implements OnInit {
             growthVelocity > growthVelocityRange * 1.1
           ) {
             lastFiveVisits[i].growthVelocity =
-              growthVelocity.toFixed(2) + '(' + growthVelocityRange + ')';
+              growthVelocity.toFixed(2) + '-(' + growthVelocityRange + ')';
             console.log(
               `Warning: Growth velocity ${growthVelocity.toFixed(
                 2
@@ -420,39 +420,85 @@ export class CurrentvisitPage implements OnInit {
       if (index === 0) {
         firstEntryDate = visit.date;
       }
+
+      const weightPart = {
+        text: visit.weight || '',
+        alignment: 'center',
+      };
+
+      const weightRangePart = {
+        text: `(${
+          Number(visit.weight) > 5
+            ? (Number(visit.weight) - 4).toFixed(1)
+            : (Number(visit.weight) - 1).toFixed(1)
+        }-${(Number(visit.weight) + 2).toFixed(1)})`,
+        alignment: 'center',
+        fontSize: 7,
+        bold: true,
+      };
+
+      const heightPart = {
+        text: visit.height || '',
+        alignment: 'center',
+      };
+
+      const heightRangePart = {
+        text: `(${(Number(visit.height) - this.randomNo()).toFixed(1)}-${(
+          Number(visit.height) + 5
+        ).toFixed(1)})`,
+        alignment: 'center',
+        fontSize: 7,
+        bold: true,
+      };
+
+      const bmiPart = {
+        text: visit.bmi || '',
+        alignment: 'center',
+      };
+
+      const bmiRangePart = {
+        text: `(${Math.floor(Number(visit.bmi) - 2)}-${Math.floor(
+          Number(visit.bmi) + 3
+        )})`,
+        alignment: 'center',
+        fontSize: 7,
+        bold: true,
+      };
+
+      const growthVelocityPart = {
+        text: visit.growthVelocity.split('-')[0] || '',
+        bold: visit.growthVelocity.includes('-') ? true : false,
+        alignment: 'center',
+      };
+
+      const growthVelocityRangePart = {
+        text: visit.growthVelocity.split('-')[1],
+        bold: visit.growthVelocity.includes('-') ? true : false,
+        fontSize: 7,
+        alignment: 'center',
+      };
+
+      const muacPart = {
+        text: visit.muac || '',
+        alignment: 'center',
+      };
+
+      const muacRangePart = {
+        text: `(${Number(visit.muac) - 4}-${Number(visit.muac) + 3})`,
+        alignment: 'center',
+        fontSize: 7,
+        bold: true,
+      };
+
       return [
-        { text: visit.date || '', alignment: 'center' },
+        { text: visit.date || '' },
+        { stack: [weightPart, weightRangePart] },
+        { stack: [heightPart, heightRangePart] },
+        { stack: [bmiPart, bmiRangePart] },
         {
-          text:
-            visit.weight +
-              `(${
-                Number(visit.weight) > 5
-                  ? Number(visit.weight) - 4
-                  : Number(visit.weight) - 1
-              }-${Number(visit.weight + 2)})` || '',
-          alignment: 'center',
+          stack: [growthVelocityPart, growthVelocityRangePart],
         },
-        {
-          text:
-            visit.height +
-              `(${Number(visit.height) - this.randomNo()}-${
-                Number(visit.height) + 5
-              })` || '',
-          alignment: 'center',
-        },
-        {
-          text:
-            visit.bmi +
-              `(${Math.floor(Number(visit.bmi) - 2)}-${Math.floor(
-                Number(visit.bmi) + 3
-              )})` || '',
-          alignment: 'center',
-        },
-        {
-          text: visit.growthVelocity || '',
-          bold: visit.growthVelocity.includes('(') ? true : false,
-        },
-        { text: visit.muac || '', alignment: 'center' },
+        { stack: [muacPart, muacRangePart] },
       ];
     });
     console.log(VisitsArray);
@@ -545,7 +591,7 @@ export class CurrentvisitPage implements OnInit {
         {
           style: 'childTable',
           table: {
-            widths: ['*', 'auto', 'auto', 'auto', 'auto', '*'],
+            widths: ['auto', '*', '*', '*', '*', '*'],
             body: [
               [
                 {
@@ -575,6 +621,8 @@ export class CurrentvisitPage implements OnInit {
                 {
                   text: 'Growth Velocity',
                   bold: true,
+                  fontSize: 11,
+                  alignment: 'center',
                   border: [false, true, true, false],
                 },
                 {
@@ -592,32 +640,37 @@ export class CurrentvisitPage implements OnInit {
                   border: [true, false, true, false],
                 },
                 {
-                  text: 'kg',
+                  text: '(kg)',
                   bold: true,
+                  fontSize: 9,
                   alignment: 'center',
                   border: [false, false, true, false],
                 },
                 {
-                  text: 'cm',
+                  text: '(cm)',
                   bold: true,
+                  fontSize: 9,
                   alignment: 'center',
                   border: [false, false, true, false],
                 },
                 {
-                  text: 'kg/m²',
+                  text: '(kg/m²)',
                   bold: true,
+                  fontSize: 9,
                   alignment: 'center',
                   border: [false, false, true, false],
                 },
                 {
-                  text: 'cm/year',
+                  text: '(cm/year)',
                   bold: true,
+                  fontSize: 9,
                   alignment: 'center',
                   border: [false, false, true, false],
                 },
                 {
-                  text: 'cm',
+                  text: '(cm)',
                   bold: true,
+                  fontSize: 9,
                   alignment: 'center',
                   border: [false, false, true, false],
                 },
