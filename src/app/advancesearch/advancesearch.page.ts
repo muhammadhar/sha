@@ -71,7 +71,7 @@ interface IVisit {
 export class AdvancesearchPage implements OnInit {
   children: Child[] = [];
   schools: School[] = [];
-  resultCardShow = false;
+  noChildFoundCard = false;
 
   filteredChildren: Child[] = [];
 
@@ -89,11 +89,15 @@ export class AdvancesearchPage implements OnInit {
     typhoidMissed: '',
     epiStatusMissed: '',
   };
-  constructor(private _storage: LocalStorageService, private file: File, private plt : Platform) {}
+  constructor(
+    private _storage: LocalStorageService,
+    private file: File,
+    private plt: Platform
+  ) {}
   ngOnInit() {
     // Retrieve child and detailChild objects from localStorage
-    const storedChildren = this._storage.getItem('childs');
-    this.schools = this._storage.getItem('schools');
+    const storedChildren = this._storage.getItem('childs') || [];
+    this.schools = this._storage.getItem('schools') || [];
   }
   searchChildren() {
     // Check if more than one field in searchCriteria has a value
@@ -107,7 +111,7 @@ export class AdvancesearchPage implements OnInit {
     }
   }
   searchChildrenMultiValue() {
-    const mergedChildren = this._storage.getItem('childs');
+    const mergedChildren = this._storage.getItem('childs') || [];
 
     const searchCriteriaKeys = Object.keys(this.searchCriteria).filter(
       (key) => key !== 'branch' && this.searchCriteria[key] !== ''
@@ -204,13 +208,13 @@ export class AdvancesearchPage implements OnInit {
         );
       });
     }
-    this.resultCardShow = this.filteredChildren.length > 0;
+    this.noChildFoundCard = this.filteredChildren.length === 0;
     this.emptySearchCriteria();
   }
 
   searchChildrenSingleValue() {
     // Merge child and detailChild objects based on child's ID
-    const mergedChildren = this._storage.getItem('childs');
+    const mergedChildren = this._storage.getItem('childs') || [];
     console.log('merged children count', mergedChildren.length);
     // Perform the search based on search criteria
     this.filteredChildren = mergedChildren.filter((child) => {
@@ -321,7 +325,7 @@ export class AdvancesearchPage implements OnInit {
         }
       }
     }
-    this.resultCardShow = this.filteredChildren.length > 0;
+    this.noChildFoundCard = this.filteredChildren.length === 0;
     this.emptySearchCriteria();
   }
 
@@ -368,7 +372,7 @@ export class AdvancesearchPage implements OnInit {
   createAndWriteCSV() {
     const fileName = Date.now().toString() + 'data.csv';
     const csvString = this.convertArrayToCSV(this.filteredChildren);
-  
+
     if (this.plt.is('cordova')) {
       // Save the CSV file on the device using @awesome-cordova-plugins/file
       const dataDirectory = this.file.dataDirectory;
@@ -377,7 +381,7 @@ export class AdvancesearchPage implements OnInit {
         .then(() => {
           const filePath = dataDirectory + fileName;
           const message = 'Childs ' + ' CSV file downloaded successfully.';
-  
+
           // Share the CSV file using SocialSharing
           SocialSharing.share(undefined, undefined, filePath, message)
             .then(() => {
@@ -395,7 +399,7 @@ export class AdvancesearchPage implements OnInit {
       this.downloadCSV(csvString, fileName);
     }
   }
-  
+
   // Function to trigger the CSV download for non-Cordova platforms (e.g., web)
   private downloadCSV(csvString: string, fileName: string) {
     const blob = new Blob([csvString], { type: 'text/csv' });
@@ -404,7 +408,7 @@ export class AdvancesearchPage implements OnInit {
     link.href = url;
     link.download = fileName;
     link.click();
-  
+
     // Optionally, you can revoke the object URL after the download link is clicked.
     URL.revokeObjectURL(url);
   }
