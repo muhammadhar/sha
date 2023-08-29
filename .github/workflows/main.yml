@@ -25,7 +25,7 @@ jobs:
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: sha.ewarenet.com
-          username: up@sha.ewarenet.com	
+          server: ftp.echowhite.com
+          username: up@sha.echowhite.com
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: www/
