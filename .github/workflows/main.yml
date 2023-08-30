@@ -34,7 +34,7 @@ jobs:
         run: npm install -g cordova 
 
       - name: Add Angular Cordova builders
-        run: ng add @ionic/cordova-builders --yes
+        run: ng add @ionic/cordova-builders '--skip-confirmation'
 
       - name: Generate Apk File
         run: ionic cordova build android --prod --device
