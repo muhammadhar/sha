@@ -18,26 +18,32 @@ jobs:
         
       - name: Install Dependencies
         run: npm install
-
-      - name: Install ionic cordova
-        run: npm i ionic cordova -g
+        
+      - name: Install Cordova
+        run: npm install -g cordova 
 
       - name: Add Angular Cordova builders
-        run: ng add @ionic/cordova-builders --yes
+        run: ng add @ionic/cordova-builders '--skip-confirmation'
 
+      - name: Enable cordova
+        run: ionic integrations enable cordova
+        
       - name: Generate Apk File
         run: ionic cordova build android --prod --device
 
       - name: Rename APK
         run: mv platforms/android/app/build/outputs/apk/debug/app-debug.apk platforms/android/app/build/outputs/apk/debug/sha.apk
-
+        
+     # - name: Permission 
+      #  run: chmod u+x www
+       
       - name: Copy APk to Www
         run: cp platforms/android/app/build/outputs/apk/debug/sha.apk www
-
-      - name: 📂 Sync Site And Apk via FTP
+      
+      - name: 📂 Sync APK via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftp.echowhite.com
           username: up@sha.echowhite.com
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: /www
+          local-dir: www/
