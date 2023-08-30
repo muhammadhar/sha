@@ -18,17 +18,6 @@ jobs:
         
       - name: Install Dependencies
         run: npm install
-
-      - name: Build
-        run: ng build
-
-      - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ftp.echowhite.com
-          username: up@sha.echowhite.com
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: www/
         
       - name: Install Cordova
         run: npm install -g cordova 
@@ -45,11 +34,11 @@ jobs:
       - name: Rename APK
         run: mv platforms/android/app/build/outputs/apk/debug/app-debug.apk platforms/android/app/build/outputs/apk/debug/sha.apk
         
-     # - name: Permission 
-      #  run: chmod u+x www
+      - name: Make Dir
+        run: mkdir www/app
        
       - name: Copy APk to Www
-        run: cp platforms/android/app/build/outputs/apk/debug/sha.apk www
+        run: cp platforms/android/app/build/outputs/apk/debug/sha.apk www/app
       
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
