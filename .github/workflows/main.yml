@@ -30,12 +30,15 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: www/
 
-      - name: Install ionic cordova
+      - name: Install Cordova
         run: npm install -g cordova 
 
       - name: Add Angular Cordova builders
         run: ng add @ionic/cordova-builders '--skip-confirmation'
 
+      - name: Enable cordova
+        run: ionic integrations enable cordova
+        
       - name: Generate Apk File
         run: ionic cordova build android --prod --device
 
