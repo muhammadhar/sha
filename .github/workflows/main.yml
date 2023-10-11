@@ -38,10 +38,10 @@ jobs:
         run: mkdir www/app
 
       - name: Giving permissions
-        run: chmod 755 www/app
+        run: chmod -R 755 www/app
      
       - name: Copy APk to Www
-        run: cp platforms/android/app/build/outputs/apk/debug/sha.apk www
+        run: cp platforms/android/app/build/outputs/apk/debug/sha.apk www/app
       
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
