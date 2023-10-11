@@ -50,5 +50,5 @@ jobs:
           server: ftp.echowhite.com
           username: up@sha.echowhite.com
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: platforms/android/app/build/outputs/apk/debug/sha.apk
+          local-dir: platforms/android/app/build/outputs/apk/debug/
           remote-dir: /
