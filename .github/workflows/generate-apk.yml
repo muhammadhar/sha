@@ -1,54 +1,54 @@
 
-name: Build Ionic App and Deploy on FTP
+# name: Build Ionic App and Deploy on FTP
 
-on: [push]
+# on: [push]
 
-jobs:
-  build:
-    name: Build & Deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@master 
+# jobs:
+#   build:
+#     name: Build & Deploy
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Repo
+#         uses: actions/checkout@master 
         
-      - name: Install Angular
-        run: npm install -g @angular/cli@latest
+#       - name: Install Angular
+#         run: npm install -g @angular/cli@latest
 
-      - name: Install Ionic
-        run: npm install -g @ionic/cli
+#       - name: Install Ionic
+#         run: npm install -g @ionic/cli
         
-      - name: Install Dependencies
-        run: npm install
+#       - name: Install Dependencies
+#         run: npm install
 
-      - name: Install Cordova
-        run: npm install -g cordova 
+#       - name: Install Cordova
+#         run: npm install -g cordova 
 
-      - name: Add Angular Cordova builders
-        run: ng add @ionic/cordova-builders '--skip-confirmation'
+#       - name: Add Angular Cordova builders
+#         run: ng add @ionic/cordova-builders '--skip-confirmation'
 
-      - name: Enable cordova
-        run: ionic integrations enable cordova
+#       - name: Enable cordova
+#         run: ionic integrations enable cordova
         
-      - name: Generate Apk File
-        run: ionic cordova build android --prod --device
+#       - name: Generate Apk File
+#         run: ionic cordova build android --prod --device
 
-      - name: Rename APK
-        run: mv platforms/android/app/build/outputs/apk/debug/app-debug.apk platforms/android/app/build/outputs/apk/debug/sha.apk
+#       - name: Rename APK
+#         run: mv platforms/android/app/build/outputs/apk/debug/app-debug.apk platforms/android/app/build/outputs/apk/debug/sha.apk
         
-      - name: Make Dir
-        run: mkdir www/app
+#       - name: Make Dir
+#         run: mkdir www/app
 
-      - name: Giving permissions
-        run: chmod 755 www/app
+#       - name: Giving permissions
+#         run: chmod 755 www/app
      
-      - name: Copy APk to Www
-        run: cp platforms/android/app/build/outputs/apk/debug/sha.apk www/app
+#       - name: Copy APk to Www
+#         run: cp platforms/android/app/build/outputs/apk/debug/sha.apk www/app
       
-      - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ftp.echowhite.com
-          username: up@sha.echowhite.com
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: platforms/android/app/build/outputs/apk/debug/
-          remote-dir: /www
+#       - name: 📂 Sync files
+#         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+#         with:
+#           server: ftp.echowhite.com
+#           username: up@sha.echowhite.com
+#           password: ${{ secrets.FTP_PASSWORD }}
+#           local-dir: platforms/android/app/build/outputs/apk/debug/
+#           remote-dir: /www
